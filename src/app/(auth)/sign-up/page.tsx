@@ -14,12 +14,18 @@ export default function SignUp() {
     <form className="w-full max-w-sm space-y-4" action={formAction}>
       <div className="grid gap-1.5">
         <Label htmlFor="name">Nama</Label>
-        <Input type="text" name="name" required maxLength={50} />
+        <Input
+          type="text"
+          name="name"
+          placeholder="John Doe"
+          required
+          maxLength={50}
+        />
       </div>
 
       <div className="grid gap-1.5">
         <Label htmlFor="email">Email</Label>
-        <Input type="email" name="email" required />
+        <Input type="email" name="email" placeholder="m@example.com" required />
       </div>
 
       <div className="grid gap-1.5">

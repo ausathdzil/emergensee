@@ -14,7 +14,7 @@ export default function SignIn() {
     <form className="w-full max-w-sm space-y-4" action={formAction}>
       <div className="grid gap-1.5">
         <Label htmlFor="email">Email</Label>
-        <Input type="email" name="email" required />
+        <Input type="email" name="email" placeholder="m@example.com" required />
       </div>
 
       <div className="grid gap-1.5">
