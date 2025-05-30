@@ -3,7 +3,7 @@ import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 export const authClient = createAuthClient({
-  baseURL: 'http://localhost:3000',
+  baseURL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
 });
 
 const signUpSchema = z.object({
@@ -27,16 +27,13 @@ export async function signUp(prevState: any, formData: FormData) {
     email: email,
     password: password,
     name: name,
-    fetchOptions: {
-      onSuccess: () => {
-        redirect('/dashboard');
-      },
-    },
   });
 
   if (error) {
     return { error: error.message };
   }
+
+  redirect('/dashboard');
 }
 
 const signInSchema = z.object({
@@ -58,14 +55,11 @@ export async function signIn(prevState: any, formData: FormData) {
   const { data, error } = await authClient.signIn.email({
     email: email,
     password: password,
-    fetchOptions: {
-      onSuccess: () => {
-        redirect('/dashboard');
-      },
-    },
   });
 
   if (error) {
     return { error: error.message };
   }
+
+  redirect('/dashboard');
 }
