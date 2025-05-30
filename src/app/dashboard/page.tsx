@@ -1,3 +1,4 @@
+import { SignOutButton } from '@/components/sign-out-button';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 
@@ -6,5 +7,10 @@ export default async function Dashboard() {
     headers: await headers(),
   });
 
-  return <pre>{JSON.stringify(session, null, 2)}</pre>;
+  return (
+    <div>
+      <pre>{JSON.stringify(session, null, 2)}</pre>
+      <SignOutButton />
+    </div>
+  );
 }

@@ -1,4 +1,12 @@
-import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
+import {
+  boolean,
+  date,
+  decimal,
+  integer,
+  pgTable,
+  text,
+  timestamp,
+} from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
@@ -59,3 +67,71 @@ export const verification = pgTable('verification', {
     () => /* @__PURE__ */ new Date()
   ),
 });
+
+export const patient = pgTable('patient', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text('name').notNull(),
+  birthDate: date('birth_date').notNull(),
+  gender: text('gender').notNull(),
+  phone: text('phone').notNull(),
+  createdAt: timestamp('created_at').$defaultFn(
+    () => /* @__PURE__ */ new Date()
+  ),
+  updatedAt: timestamp('updated_at').$defaultFn(
+    () => /* @__PURE__ */ new Date()
+  ),
+});
+
+export const igdVisit = pgTable('igd_visit', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  patientId: text('patient_id')
+    .notNull()
+    .references(() => patient.id, { onDelete: 'cascade' }),
+  staffId: text('staff_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  visitTimestamp: timestamp('visit_timestamp').notNull(),
+  complaints: text('complaints').notNull(),
+  bloodPressure: integer('blood_pressure').notNull(),
+  temperature: decimal('temperature').notNull(),
+  respiratoryRate: integer('respiratory_rate').notNull(),
+  oxygenSaturation: integer('oxygen_saturation').notNull(),
+  symptoms: text('symptoms').array().notNull(),
+  createdAt: timestamp('created_at').$defaultFn(
+    () => /* @__PURE__ */ new Date()
+  ),
+  updatedAt: timestamp('updated_at').$defaultFn(
+    () => /* @__PURE__ */ new Date()
+  ),
+});
+
+export const analysisLog = pgTable('analysis_log', {
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  visitId: text('visit_id')
+    .notNull()
+    .references(() => igdVisit.id, { onDelete: 'cascade' }),
+  staffId: text('staff_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  analysisTimestamp: timestamp('analysis_timestamp').notNull(),
+  bpjsApprovalRate: decimal('bpjs_approval_rate').notNull(),
+  bpjsIndicator: text('bpjs_indicator').notNull(),
+  doctorStatus: text('doctor_status').notNull(),
+  aiSummary: text('ai_summary').notNull(),
+  createdAt: timestamp('created_at').$defaultFn(
+    () => /* @__PURE__ */ new Date()
+  ),
+  updatedAt: timestamp('updated_at').$defaultFn(
+    () => /* @__PURE__ */ new Date()
+  ),
+});
+
+export type Patient = typeof patient.$inferSelect;
+export type IGDVisit = typeof igdVisit.$inferSelect;
+export type AnalysisLog = typeof analysisLog.$inferSelect;
