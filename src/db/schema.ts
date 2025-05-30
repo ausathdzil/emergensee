@@ -1,8 +1,7 @@
 import {
   boolean,
-  date,
   decimal,
-  integer,
+  jsonb,
   pgTable,
   text,
   timestamp,
@@ -22,6 +21,10 @@ export const user = pgTable('user', {
   updatedAt: timestamp('updated_at')
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
+  role: text('role'),
+  banned: boolean('banned'),
+  banReason: text('ban_reason'),
+  banExpires: timestamp('ban_expires'),
 });
 
 export const session = pgTable('session', {
@@ -35,6 +38,7 @@ export const session = pgTable('session', {
   userId: text('user_id')
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
+  impersonatedBy: text('impersonated_by'),
 });
 
 export const account = pgTable('account', {
@@ -68,70 +72,71 @@ export const verification = pgTable('verification', {
   ),
 });
 
-export const patient = pgTable('patient', {
+export const symptomReports = pgTable('symptom_reports', {
+  id: text('id').primaryKey(),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  latitude: decimal('latitude').notNull(),
+  longitude: decimal('longitude').notNull(),
+  complaint: text('complaint').notNull(),
+  symptoms: text('symptoms').array().notNull(),
+  temperature: decimal('temperature'),
+  oxygenSaturation: decimal('oxygen_saturation'),
+  heartRate: decimal('heart_rate'),
+  bloodPressure: decimal('blood_pressure'),
+  respiratoryRate: decimal('respiratory_rate'),
+  aiAnalysis: jsonb('ai_analysis'),
+  isEmergency: boolean('is_emergency'),
+  createdAt: timestamp('created_at')
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  updatedAt: timestamp('updated_at')
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
+
+export const alerts = pgTable('alerts', {
+  id: text('id').primaryKey(),
+  type: text('type').notNull(),
+  province: text('province').notNull(),
+  city: text('city').notNull(),
+  district: text('district').notNull(),
+  relatedSymptoms: jsonb('related_symptoms').notNull(),
+  aiAnalysis: jsonb('ai_analysis').notNull(),
+  status: text('status').notNull(),
+  reviewedBy: text('reviewed_by').references(() => user.id),
+  reviewedAt: timestamp('reviewed_at'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at')
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  updatedAt: timestamp('updated_at')
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
+
+export const healthcareFasilities = pgTable('healthcare_fasilities', {
   id: text('id')
     .primaryKey()
     .$defaultFn(() => crypto.randomUUID()),
   name: text('name').notNull(),
-  birthDate: date('birth_date').notNull(),
-  gender: text('gender').notNull(),
-  phone: text('phone').notNull(),
-  createdAt: timestamp('created_at').$defaultFn(
-    () => /* @__PURE__ */ new Date()
-  ),
-  updatedAt: timestamp('updated_at').$defaultFn(
-    () => /* @__PURE__ */ new Date()
-  ),
+  type: text('type').notNull(),
+  address: text('address').notNull(),
+  latitude: decimal('latitude').notNull(),
+  longitude: decimal('longitude').notNull(),
+  phone: text('phone'),
+  isBpjsPartner: boolean('is_bpjs_partner'),
+  operationHours: text('operation_hours'),
+  createdAt: timestamp('created_at')
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
+  updatedAt: timestamp('updated_at')
+    .$defaultFn(() => /* @__PURE__ */ new Date())
+    .notNull(),
 });
 
-export const igdVisit = pgTable('igd_visit', {
-  id: text('id')
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  patientId: text('patient_id')
-    .notNull()
-    .references(() => patient.id, { onDelete: 'cascade' }),
-  staffId: text('staff_id')
-    .notNull()
-    .references(() => user.id, { onDelete: 'cascade' }),
-  visitTimestamp: timestamp('visit_timestamp').notNull(),
-  complaints: text('complaints').notNull(),
-  bloodPressure: integer('blood_pressure').notNull(),
-  temperature: decimal('temperature').notNull(),
-  respiratoryRate: integer('respiratory_rate').notNull(),
-  oxygenSaturation: integer('oxygen_saturation').notNull(),
-  symptoms: text('symptoms').array().notNull(),
-  createdAt: timestamp('created_at').$defaultFn(
-    () => /* @__PURE__ */ new Date()
-  ),
-  updatedAt: timestamp('updated_at').$defaultFn(
-    () => /* @__PURE__ */ new Date()
-  ),
-});
-
-export const analysisLog = pgTable('analysis_log', {
-  id: text('id')
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  visitId: text('visit_id')
-    .notNull()
-    .references(() => igdVisit.id, { onDelete: 'cascade' }),
-  staffId: text('staff_id')
-    .notNull()
-    .references(() => user.id, { onDelete: 'cascade' }),
-  analysisTimestamp: timestamp('analysis_timestamp').notNull(),
-  bpjsApprovalRate: decimal('bpjs_approval_rate').notNull(),
-  bpjsIndicator: text('bpjs_indicator').notNull(),
-  doctorStatus: text('doctor_status').notNull(),
-  aiSummary: text('ai_summary').notNull(),
-  createdAt: timestamp('created_at').$defaultFn(
-    () => /* @__PURE__ */ new Date()
-  ),
-  updatedAt: timestamp('updated_at').$defaultFn(
-    () => /* @__PURE__ */ new Date()
-  ),
-});
-
-export type Patient = typeof patient.$inferSelect;
-export type IGDVisit = typeof igdVisit.$inferSelect;
-export type AnalysisLog = typeof analysisLog.$inferSelect;
+export type User = typeof user.$inferSelect;
+export type SymptomReport = typeof symptomReports.$inferSelect;
+export type HealthcareFasilities = typeof healthcareFasilities.$inferSelect;
+export type Alert = typeof alerts.$inferSelect;

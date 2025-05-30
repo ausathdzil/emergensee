@@ -2,7 +2,7 @@ import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
-  SidebarHeader
+  SidebarHeader,
 } from '@/components/ui/sidebar';
 import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';

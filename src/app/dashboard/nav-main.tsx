@@ -8,29 +8,35 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import {
-  CircleUserRoundIcon,
+  BellRingIcon,
+  ChartLineIcon,
+  CircleGaugeIcon,
   CogIcon,
-  FileUserIcon,
-  FolderClockIcon,
+  MapIcon,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const items = [
   {
-    title: 'Pasien',
+    title: 'Dashboard',
     url: '/dashboard',
-    icon: FileUserIcon,
+    icon: CircleGaugeIcon,
   },
   {
-    title: 'Riwayat',
-    url: '/dashboard/riwayat',
-    icon: FolderClockIcon,
+    title: 'Epidemiologi',
+    url: '/dashboard/epidemiologi',
+    icon: MapIcon,
   },
   {
-    title: 'Akun',
+    title: 'Peringatan',
+    url: '/dashboard/peringatan',
+    icon: BellRingIcon,
+  },
+  {
+    title: 'Analisis',
     url: '#',
-    icon: CircleUserRoundIcon,
+    icon: ChartLineIcon,
   },
   {
     title: 'Pengaturan',

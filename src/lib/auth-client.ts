@@ -1,9 +1,14 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+import { adminClient } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
+  plugins: [adminClient()],
 });
 
 const signUpSchema = z.object({
@@ -18,7 +23,7 @@ export async function signUp(prevState: any, formData: FormData) {
   const validatedFields = signUpSchema.safeParse(rawFormData);
 
   if (!validatedFields.success) {
-    return { error: 'Invalid fields' };
+    return { errors: validatedFields.error.flatten().fieldErrors };
   }
 
   const { email, password, name } = validatedFields.data;
@@ -47,7 +52,7 @@ export async function signIn(prevState: any, formData: FormData) {
   const validatedFields = signInSchema.safeParse(rawFormData);
 
   if (!validatedFields.success) {
-    return { error: 'Invalid fields' };
+    return { errors: validatedFields.error.flatten().fieldErrors };
   }
 
   const { email, password } = validatedFields.data;
