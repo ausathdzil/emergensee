@@ -1,6 +1,6 @@
 'use client';
 
-import { Bar, BarChart, CartesianGrid, Rectangle, XAxis, Cell } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, XAxis } from 'recharts';
 
 import {
   Card,
@@ -15,13 +15,8 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
-import { getReportsBySymptoms } from '@/db/data';
 
-export function SymptomsTrendChart({
-  symptomsTrend,
-}: {
-  symptomsTrend: Awaited<ReturnType<typeof getReportsBySymptoms>>;
-}) {
+export function SymptomsTrendChart() {
   // const chartData = symptomsTrend.map((item) => ({
   //   symptom: item.symptom,
   //   count: Number(item.count),

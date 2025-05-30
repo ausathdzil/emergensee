@@ -9,11 +9,12 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { getSymptomsAndLocations } from '@/db/data';
 import type { FeatureCollection, Point } from 'geojson';
 import mapboxgl, { LngLatLike } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
+const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!;
 
 const INITIAL_CENTER = [106.83662, -6.18232] as LngLatLike;
 const INITIAL_ZOOM = 11;
@@ -25,7 +26,7 @@ type SymptomLocation = {
   latitude: string;
 };
 
-// Mock data for demo/testing
+// Restore dummy data for demo/testing
 const symptomsAndLocationsDummy: SymptomLocation[] = [
   { symptom: 'Demam', longitude: '106.83662', latitude: '-6.18232' },
   { symptom: 'Demam', longitude: '106.83700', latitude: '-6.18300' },
@@ -47,11 +48,7 @@ const symptomsAndLocationsDummy: SymptomLocation[] = [
   { symptom: 'Lemas', longitude: '106.85700', latitude: '-6.18700' },
 ];
 
-export function EpidemiologyMap({
-  symptomsAndLocations,
-}: {
-  symptomsAndLocations: Awaited<ReturnType<typeof getSymptomsAndLocations>>;
-}) {
+export function EpidemiologyMap() {
   const mapRef = useRef<mapboxgl.Map>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
 
@@ -72,22 +69,31 @@ export function EpidemiologyMap({
     uniqueSymptoms[0] || ''
   );
 
-  const handleButtonClick = () => {
-    mapRef.current!.flyTo({
-      center: INITIAL_CENTER,
-      zoom: INITIAL_ZOOM,
-    });
-  };
+  // Keep selectedSymptom in sync with uniqueSymptoms
+  useEffect(() => {
+    if (!uniqueSymptoms.includes(selectedSymptom)) {
+      setSelectedSymptom(uniqueSymptoms[0] || '');
+    }
+  }, [uniqueSymptoms, selectedSymptom]);
+
+  const handleButtonClick = useCallback(() => {
+    if (mapRef.current) {
+      mapRef.current.flyTo({
+        center: center,
+        zoom: zoom,
+      });
+    }
+  }, [center, zoom]);
 
   // Initialize map only once
   useEffect(() => {
-    mapboxgl.accessToken =
-      'pk.eyJ1IjoiYXVzYXRoIiwiYSI6ImNtOXljZ3BlMzFnYmYyaW13YWkzOW80ZG8ifQ.UP1-jkro_aVkZ2cP2CEkNA';
-    if (mapRef.current) return;
+    mapboxgl.accessToken = mapboxAccessToken;
+    if (mapRef.current || !mapContainerRef.current) return;
+
     mapRef.current = new mapboxgl.Map({
-      container: mapContainerRef.current!,
-      center: center,
-      zoom: zoom,
+      container: mapContainerRef.current,
+      center: INITIAL_CENTER,
+      zoom: INITIAL_ZOOM,
       style: 'mapbox://styles/mapbox/dark-v11',
     });
 
@@ -97,7 +103,7 @@ export function EpidemiologyMap({
       const initialGeojson: FeatureCollection<Point> = {
         type: 'FeatureCollection',
         features: symptomsAndLocationsDummy
-          .filter((item) => item.symptom === selectedSymptom)
+          .filter((item) => item.symptom === (uniqueSymptoms[0] || ''))
           .map((item) => ({
             type: 'Feature',
             properties: { symptom: item.symptom },
@@ -192,7 +198,6 @@ export function EpidemiologyMap({
     mapRef.current.on('move', () => {
       const mapCenter = mapRef.current!.getCenter();
       const mapZoom = mapRef.current!.getZoom();
-
       setCenter(mapCenter);
       setZoom(mapZoom);
       const isCenterDirty =
@@ -207,36 +212,36 @@ export function EpidemiologyMap({
     return () => {
       if (mapRef.current) {
         mapRef.current.remove();
+        mapRef.current = null;
       }
     };
-  }, []);
+  }, [uniqueSymptoms]);
 
-  // Update geojson source data when selectedSymptom changes and map is loaded
+  // Update geojson source data when selectedSymptom or dataToUse changes and map is loaded
   useEffect(() => {
     if (!mapLoaded || !mapRef.current) return;
-    const geojson: FeatureCollection<Point> = {
-      type: 'FeatureCollection',
-      features: symptomsAndLocationsDummy
-        .filter((item) => item.symptom === selectedSymptom)
-        .map((item) => ({
-          type: 'Feature',
-          properties: { symptom: item.symptom },
-          geometry: {
-            type: 'Point',
-            coordinates: [
-              parseFloat(item.longitude),
-              parseFloat(item.latitude),
-            ],
-          },
-        })),
-    };
-    const source = mapRef.current.getSource(
-      'symptoms'
-    ) as mapboxgl.GeoJSONSource;
-    if (source) {
-      source.setData(geojson);
+    const map = mapRef.current;
+    const source = map.getSource('symptoms');
+    if (source && 'setData' in source) {
+      const geojson: FeatureCollection<Point> = {
+        type: 'FeatureCollection',
+        features: symptomsAndLocationsDummy
+          .filter((item) => item.symptom === selectedSymptom)
+          .map((item) => ({
+            type: 'Feature',
+            properties: { symptom: item.symptom },
+            geometry: {
+              type: 'Point',
+              coordinates: [
+                parseFloat(item.longitude),
+                parseFloat(item.latitude),
+              ],
+            },
+          })),
+      };
+      (source as mapboxgl.GeoJSONSource).setData(geojson);
     }
-  }, [selectedSymptom, mapLoaded]);
+  }, [selectedSymptom, mapLoaded, uniqueSymptoms]);
 
   return (
     <Card>
