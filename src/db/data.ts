@@ -10,7 +10,7 @@ import { alerts, symptomReports } from './schema';
 
 export async function getTotalReports() {
   cacheTag('total-reports');
-  cacheLife('days');
+  cacheLife('hours');
 
   const now = Date.now();
   const today = new Date(now - 24 * 60 * 60 * 1000);
@@ -38,7 +38,7 @@ export async function getTotalReports() {
 
 export async function getEmergencyReports() {
   cacheTag('emergency-reports');
-  cacheLife('days');
+  cacheLife('hours');
 
   const now = Date.now();
   const today = new Date(now - 24 * 60 * 60 * 1000);
@@ -78,7 +78,7 @@ export async function getDetectedAlerts() {
 
 export async function getReportsBySymptoms() {
   cacheTag('reports-by-symptoms');
-  cacheLife('days');
+  cacheLife('hours');
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
@@ -111,42 +111,42 @@ export async function getSymptomsAndLocations(): Promise<
   SymptomWithLocations[]
 > {
   cacheTag('symptoms-and-locations');
-  cacheLife('days');
+  cacheLife('hours');
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const data = await db.execute(sql`
-    SELECT
-      symptom,
-      COUNT(*) as count,
-      ARRAY_AGG(ROW(longitude, latitude)::text) as locations
-    FROM (
-      SELECT
-        UNNEST(symptoms) as symptom,
-        longitude,
-        latitude
-      FROM symptom_reports
-      WHERE created_at >= ${sevenDaysAgo} AND created_at < ${new Date()}
-    ) as unnested
-    GROUP BY symptom
-    ORDER BY count DESC
-    LIMIT 10;
-  `);
+  const data = await db
+    .select({
+      symptom: sql<string>`UNNEST(${symptomReports.symptoms})`,
+      count: sql<number>`COUNT(*)`,
+      locations: sql<
+        string[]
+      >`ARRAY_AGG(ROW(${symptomReports.longitude}, ${symptomReports.latitude})::text)`,
+    })
+    .from(symptomReports)
+    .where(
+      and(
+        gte(symptomReports.createdAt, sevenDaysAgo),
+        lt(symptomReports.createdAt, new Date())
+      )
+    )
+    .groupBy(sql`UNNEST(${symptomReports.symptoms})`)
+    .orderBy(desc(sql`COUNT(*)`))
+    .limit(10);
 
   function parseLocationRow(rowStr: string) {
     const [longitude, latitude] = rowStr.replace(/[()]/g, '').split(',');
     return { longitude: Number(longitude), latitude: Number(latitude) };
   }
 
-  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-  return (data.rows as any[]).map((row) => ({
+  return data.map((row) => ({
     symptom: row.symptom,
     count: Number(row.count),
     locations: Array.isArray(row.locations)
-      ? /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
-        row.locations.map((loc: any) =>
-          typeof loc === 'string' ? parseLocationRow(loc) : loc
-        )
+      ? row.locations.map((loc: string) => ({
+          longitude: parseLocationRow(loc).longitude.toString(),
+          latitude: parseLocationRow(loc).latitude.toString(),
+        }))
       : [],
   }));
 }
@@ -162,7 +162,7 @@ export async function getAllAlerts() {
 
 export async function getRecentReports() {
   cacheTag('recent-reports');
-  cacheLife('days');
+  cacheLife('hours');
 
   const data = await db
     .select()
@@ -175,20 +175,45 @@ export async function getRecentReports() {
 
 export async function getEmergencyAndNonEmergencyReports() {
   cacheTag('emergency-and-non-emergency-reports');
-  cacheLife('days');
-
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  cacheLife('hours');
 
   const data = await db
     .select({
-      date: symptomReports.createdAt,
-      igd: sql<number>`COUNT(*) FILTER (WHERE ${symptomReports.isEmergency} = true)`,
-      nonIgd: sql<number>`COUNT(*) FILTER (WHERE ${symptomReports.isEmergency} = false OR ${symptomReports.isEmergency} IS NULL)`,
+      date: sql<string>`to_char(${symptomReports.createdAt}, 'YYYY-MM-DD')`,
+      emergency: sql<number>`COUNT(*) FILTER (WHERE ${symptomReports.isEmergency} = true)`,
+      nonEmergency: sql<number>`COUNT(*) FILTER (WHERE ${symptomReports.isEmergency} = false OR ${symptomReports.isEmergency} IS NULL)`,
     })
     .from(symptomReports)
-    .where(gte(symptomReports.createdAt, thirtyDaysAgo))
-    .groupBy(symptomReports.createdAt)
-    .orderBy(desc(symptomReports.createdAt));
+    .groupBy(sql`to_char(${symptomReports.createdAt}, 'YYYY-MM-DD')`)
+    .orderBy(desc(sql`to_char(${symptomReports.createdAt}, 'YYYY-MM-DD')`))
+    .limit(30);
+
+  return data
+    .map((row) => ({
+      date: row.date,
+      emergency: Number(row.emergency),
+      nonEmergency: Number(row.nonEmergency),
+    }))
+    .reverse();
+}
+
+export async function getRecentSymptomReports() {
+  cacheTag('recent-symptom-reports');
+  cacheLife('hours');
+
+  const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+  const data = await db
+    .select()
+    .from(symptomReports)
+    .where(
+      and(
+        gte(symptomReports.createdAt, twentyFourHoursAgo),
+        lt(symptomReports.createdAt, new Date())
+      )
+    )
+    .orderBy(desc(symptomReports.createdAt))
+    .limit(10);
 
   return data;
 }

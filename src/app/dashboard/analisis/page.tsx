@@ -3,7 +3,6 @@ import { TrendAnalysisChart } from './trend-analysis-chart';
 
 export default async function Analisis() {
   const data = await getEmergencyAndNonEmergencyReports();
-  console.log(data);
 
   return (
     <div className="flex-1 flex flex-col">

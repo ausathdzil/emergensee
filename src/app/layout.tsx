@@ -16,11 +16,12 @@ export const metadata: Metadata = {
 
 export const experimental_ppr = true;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="en">
       <body className={`${manrope.variable} font-sans dark:antialiased`}>
