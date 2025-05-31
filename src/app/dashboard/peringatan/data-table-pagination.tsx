@@ -21,11 +21,11 @@ export function DataTablePagination<TData>({
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Baris per halaman</p>
           <select
-            className="h-8 w-[70px] border rounded-md px-2"
+            className="w-fit rounded-lg border px-3 py-2 ml-auto"
             value={table.getState().pagination.pageSize}
             onChange={(e) => table.setPageSize(Number(e.target.value))}
           >
-            {[5, 10, 15, 20].map((pageSize) => (
+            {[5, 10, 15].map((pageSize) => (
               <option key={pageSize} value={pageSize}>
                 {pageSize}
               </option>

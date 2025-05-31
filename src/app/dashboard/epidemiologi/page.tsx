@@ -1,6 +1,6 @@
 import { EpidemiologyMap } from './epidemiology-map';
 
-export default async function Epidemiology() {
+export default function Epidemiology() {
   // const symptomsAndLocations = await getSymptomsAndLocations();
 
   return (

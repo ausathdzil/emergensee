@@ -35,7 +35,7 @@ const items = [
   },
   {
     title: 'Analisis',
-    url: '#',
+    url: '/dashboard/analisis',
     icon: ChartLineIcon,
   },
   {

@@ -238,7 +238,7 @@ export default function Alerts() {
       <header className="border-b border-border p-4">
         <h1 className="text-center text-xl font-semibold">Peringatan Dini</h1>
       </header>
-      <main className="flex-1 p-8 *:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs">
+      <main className="flex-1 p-8">
         <DataTable columns={columns} data={alertsDummy} />
       </main>
     </div>

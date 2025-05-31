@@ -254,7 +254,7 @@ export function EpidemiologyMap() {
           <select
             value={selectedSymptom}
             onChange={(e) => setSelectedSymptom(e.target.value)}
-            className="w-[150px] border border-input rounded-md px-2 py-1"
+            className="w-40 rounded-lg border px-3 py-2"
           >
             {uniqueSymptoms.map((symptom) => (
               <option key={symptom} value={symptom}>
