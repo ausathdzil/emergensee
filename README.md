@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Emergensee
 
-## Getting Started
+Emergensee adalah platform deteksi dini berbasis web untuk analisis tren gejala kesehatan masyarakat secara real-time, dengan fitur utama berupa AI-generated early warning dan automasi analisis berkala.
 
-First, run the development server:
+## Mobile App
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+[EmergenSee Mobile](https://github.com/Raya46/emergensee-mobile)
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Arsitektur Teknologi
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 1. Frontend
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Next.js**
+  - Framework utama untuk SSR/SSG, routing, dan rendering UI.
+  - Menggunakan TailwindCSS untuk styling dan shadcn/ui untuk komponen aksesibilitas.
+  - Visualisasi data menggunakan Recharts.
 
-## Learn More
+### 2. Backend & API
 
-To learn more about Next.js, take a look at the following resources:
+- **Next.js API Routes**
+  - Seluruh endpoint backend (termasuk AI dan cron) diimplementasikan sebagai API route di dalam Next.js.
+- **Drizzle ORM + Neon Postgres**
+  - ORM modern untuk akses database yang typesafe dan efisien.
+  - Database utama untuk menyimpan laporan gejala, hasil analisis AI, user, dsb.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 3. AI Report (Early Warning)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- **@ai-sdk/google (Gemini 2.5) + ai**
+  - Menggunakan LLM Google Gemini untuk menganalisis laporan gejala 24 jam terakhir.
+  - Prompt AI didesain untuk menghasilkan array JSON berisi deteksi pola/gejala/lokasi signifikan, tingkat risiko, confidence, dan ringkasan analisis.
+  - Hasil analisis AI disimpan ke database dan ditampilkan di dashboard/peringatan.
+- **Zod**
+  - Validasi dan parsing output AI agar selalu sesuai skema yang diharapkan.
 
-## Deploy on Vercel
+### 4. Cron Job Otomatis
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Vercel Cron**
+  - Penjadwalan otomatis endpoint `/api/cron` setiap hari.
+  - Endpoint ini akan memanggil pipeline AI report secara otomatis, sehingga analisis dan deteksi peringatan baru berjalan tanpa intervensi manual.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Alasan Pemilihan Teknologi
+
+### AI Report (Early Warning)
+
+- **Google Gemini LLM via @ai-sdk/google**
+  - Dipilih karena kemampuannya dalam pemrosesan bahasa alami dan reasoning yang kuat, sangat cocok untuk analisis tren gejala berbasis data tidak terstruktur.
+  - Integrasi dengan SDK memudahkan orchestrasi prompt dan parsing output.
+- **Zod**
+  - Menjamin output AI selalu valid dan aman sebelum diproses lebih lanjut atau disimpan ke database.
+- **Drizzle ORM**
+  - Typesafe, mudah diintegrasikan dengan Next.js, dan mendukung query kompleks untuk kebutuhan analisis data kesehatan.
+
+### Cron Job
+
+- **Vercel Cron**
+  - Native support di Vercel, sangat mudah dikonfigurasi tanpa perlu server terpisah atau third-party scheduler.
+  - Menjamin pipeline AI report berjalan otomatis dan konsisten setiap hari, sehingga deteksi dini selalu up-to-date.
