@@ -17,7 +17,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import {
-  getActiveAlerts,
+  getDetectedAlerts,
   getEmergencyReports,
   getReportsBySymptoms,
   getTotalReports,
@@ -30,15 +30,16 @@ import {
 } from '@tabler/icons-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { alertsDummy } from './peringatan/page';
 import { SymptomsTrendChart } from './symptoms-trend-chart';
 
 export default async function Dashboard() {
-  const [totalReports, emergencyReports, symptomsTrend] = await Promise.all([
-    getTotalReports(),
-    getEmergencyReports(),
-    getReportsBySymptoms(),
-  ]);
+  const [totalReports, emergencyReports, symptomsTrend, detectedAlerts] =
+    await Promise.all([
+      getTotalReports(),
+      getEmergencyReports(),
+      getReportsBySymptoms(),
+      getDetectedAlerts(),
+    ]);
 
   return (
     <div className="flex-1 flex flex-col">
@@ -51,10 +52,10 @@ export default async function Dashboard() {
             <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @2xl/main:grid-cols-3">
               <TotalReports totalReports={totalReports} />
               <EmergencyReports emergencyReports={emergencyReports} />
-              <ActiveAlerts alerts={alertsDummy} />
+              <DetectedAlerts alerts={detectedAlerts} />
             </div>
             <SymptomsTrendChart symptomsTrend={symptomsTrend} />
-            <ActiveAlertsTable alerts={alertsDummy} />
+            <DetectedAlertsTable alerts={detectedAlerts} />
           </Suspense>
         </div>
       </main>
@@ -68,17 +69,17 @@ function TotalReports({
   totalReports: Awaited<ReturnType<typeof getTotalReports>>;
 }) {
   const today = Number(totalReports.today) || 0;
-  const yesterday = Number(totalReports.yesterday) || 0;
-  const diff = today - yesterday;
+  const sevenDaysAgo = Number(totalReports.sevenDaysAgo) || 0;
+  const diff = today - sevenDaysAgo;
 
   let percent: number;
 
-  if (yesterday === 0 && today === 0) {
+  if (sevenDaysAgo === 0 && today === 0) {
     percent = 0;
-  } else if (yesterday === 0) {
+  } else if (sevenDaysAgo === 0) {
     percent = 100;
   } else {
-    percent = (diff / yesterday) * 100;
+    percent = (diff / sevenDaysAgo) * 100;
   }
 
   const isDown = percent < 0;
@@ -86,7 +87,7 @@ function TotalReports({
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardDescription>Total Laporan Harian</CardDescription>
+        <CardDescription>Total Laporan Mingguan</CardDescription>
         <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-primary">
           {totalReports.today}
         </CardTitle>
@@ -105,7 +106,7 @@ function TotalReports({
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1.5 text-sm">
         <div className="text-muted-foreground">
-          Laporan harian dalam 24 jam terakhir
+          Laporan harian dalam 7 hari terakhir
         </div>
       </CardFooter>
     </Card>
@@ -118,17 +119,17 @@ function EmergencyReports({
   emergencyReports: Awaited<ReturnType<typeof getEmergencyReports>>;
 }) {
   const today = Number(emergencyReports.today) || 0;
-  const yesterday = Number(emergencyReports.yesterday) || 0;
-  const diff = today - yesterday;
+  const sevenDaysAgo = Number(emergencyReports.sevenDaysAgo) || 0;
+  const diff = today - sevenDaysAgo;
 
   let percent: number;
 
-  if (yesterday === 0 && today === 0) {
+  if (sevenDaysAgo === 0 && today === 0) {
     percent = 0;
-  } else if (yesterday === 0) {
+  } else if (sevenDaysAgo === 0) {
     percent = 100;
   } else {
-    percent = (diff / yesterday) * 100;
+    percent = (diff / sevenDaysAgo) * 100;
   }
 
   const isDown = percent < 0;
@@ -155,26 +156,24 @@ function EmergencyReports({
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1.5 text-sm">
         <div className="text-muted-foreground">
-          Kasus dengan indikasi IGD untuk 24 jam terakhir
+          Kasus dengan indikasi IGD 7 hari terakhir
         </div>
       </CardFooter>
     </Card>
   );
 }
 
-function ActiveAlerts({
+function DetectedAlerts({
   alerts,
 }: {
-  alerts: Awaited<ReturnType<typeof getActiveAlerts>>;
+  alerts: Awaited<ReturnType<typeof getDetectedAlerts>>;
 }) {
-  const activeAlerts = alerts.filter((alert) => alert.status === 'Terdeteksi');
-
   return (
     <Card className="@container/card">
       <CardHeader>
         <CardDescription>Peringatan Terdeteksi</CardDescription>
         <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-warning">
-          {activeAlerts.length}
+          {alerts.length}
         </CardTitle>
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1.5 text-sm">
@@ -186,10 +185,10 @@ function ActiveAlerts({
   );
 }
 
-function ActiveAlertsTable({
+function DetectedAlertsTable({
   alerts,
 }: {
-  alerts: Awaited<ReturnType<typeof getActiveAlerts>>;
+  alerts: Awaited<ReturnType<typeof getDetectedAlerts>>;
 }) {
   const recentActiveAlerts = alerts
     .filter((alert) => alert.status === 'Terdeteksi')

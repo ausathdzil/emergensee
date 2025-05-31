@@ -34,11 +34,9 @@ export const columns: ColumnDef<Alert>[] = [
     accessorKey: 'type',
     header: 'Tipe',
     cell: ({ row }) => (
-      <div className="w-32">
-        <Badge variant="outline" className="px-1.5">
-          {row.original.type}
-        </Badge>
-      </div>
+      <Badge variant="outline" className="px-1.5">
+        {row.original.type}
+      </Badge>
     ),
   },
   {
@@ -112,7 +110,7 @@ export const columns: ColumnDef<Alert>[] = [
             <DropdownMenuSeparator />
             <DropdownMenuItem>
               <IconEdit />
-              Ubah Detail
+              Detail
             </DropdownMenuItem>
             <DropdownMenuItem>
               <IconTrash />

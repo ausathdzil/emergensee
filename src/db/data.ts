@@ -14,7 +14,7 @@ export async function getTotalReports() {
 
   const now = Date.now();
   const today = new Date(now - 24 * 60 * 60 * 1000);
-  const yesterday = new Date(now - 48 * 60 * 60 * 1000);
+  const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
 
   const data = await db
     .select({
@@ -25,9 +25,9 @@ export async function getTotalReports() {
       } < ${new Date()}
           THEN 1 ELSE 0 END
         ), 0)`,
-      yesterday: sql<number>`
+      sevenDaysAgo: sql<number>`
         COALESCE(SUM(CASE 
-          WHEN ${symptomReports.createdAt} >= ${yesterday} AND ${symptomReports.createdAt} < ${today}
+          WHEN ${symptomReports.createdAt} >= ${sevenDaysAgo} AND ${symptomReports.createdAt} < ${today}
           THEN 1 ELSE 0 END
         ), 0)`,
     })
@@ -42,7 +42,7 @@ export async function getEmergencyReports() {
 
   const now = Date.now();
   const today = new Date(now - 24 * 60 * 60 * 1000);
-  const yesterday = new Date(now - 48 * 60 * 60 * 1000);
+  const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
 
   const data = await db
     .select({
@@ -53,9 +53,9 @@ export async function getEmergencyReports() {
       } >= ${today} AND ${symptomReports.createdAt} < ${new Date()}
           THEN 1 ELSE 0 END
         ), 0)`,
-      yesterday: sql<number>`
+      sevenDaysAgo: sql<number>`
         COALESCE(SUM(CASE 
-          WHEN ${symptomReports.isEmergency} = true AND ${symptomReports.createdAt} >= ${yesterday} AND ${symptomReports.createdAt} < ${today}
+          WHEN ${symptomReports.isEmergency} = true AND ${symptomReports.createdAt} >= ${sevenDaysAgo} AND ${symptomReports.createdAt} < ${today}
           THEN 1 ELSE 0 END
         ), 0)`,
     })
@@ -64,14 +64,14 @@ export async function getEmergencyReports() {
   return data[0];
 }
 
-export async function getActiveAlerts() {
-  cacheTag('active-alerts');
+export async function getDetectedAlerts() {
+  cacheTag('detected-alerts');
   cacheLife('hours');
 
   const data = await db
     .select()
     .from(alerts)
-    .where(eq(alerts.status, 'active'));
+    .where(eq(alerts.status, 'Terdeteksi'));
 
   return data;
 }

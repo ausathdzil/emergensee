@@ -10,6 +10,7 @@ import {
 
 export const user = pgTable('user', {
   id: text('id').primaryKey(),
+  did: text('did'),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified')
@@ -98,9 +99,7 @@ export const symptomReports = pgTable('symptom_reports', {
 });
 
 export const alerts = pgTable('alerts', {
-  id: text('id')
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
+  id: uuid('id').defaultRandom().primaryKey(),
   type: text('type').notNull(),
   province: text('province').notNull(),
   city: text('city').notNull(),
