@@ -34,16 +34,16 @@ const items = [
     iconFilled: IconMapPinFilled,
   },
   {
-    title: 'Peringatan',
-    url: '/dashboard/peringatan',
-    icon: IconAlertTriangle,
-    iconFilled: IconAlertTriangleFilled,
-  },
-  {
     title: 'Analisis',
     url: '/dashboard/analisis',
     icon: IconChartAreaLine,
     iconFilled: IconChartAreaLineFilled,
+  },
+  {
+    title: 'Peringatan',
+    url: '/dashboard/peringatan',
+    icon: IconAlertTriangle,
+    iconFilled: IconAlertTriangleFilled,
   },
 ];
 

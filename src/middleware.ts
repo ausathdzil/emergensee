@@ -3,7 +3,7 @@ import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
 
 const protectedRoutes = ['/dashboard'];
-const publicRoutes = ['/sign-in', '/sign-up'];
+const publicRoutes = ['/sign-in', '/sign-up', '/'];
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;

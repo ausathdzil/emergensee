@@ -6,7 +6,7 @@ import {
   unstable_cacheTag as cacheTag,
 } from 'next/cache';
 import { db } from '.';
-import { alerts, symptomReports } from './schema';
+import { alerts, symptomReports, user } from './schema';
 
 export async function getTotalReports() {
   cacheTag('total-reports');
@@ -216,4 +216,20 @@ export async function getRecentSymptomReports() {
     .limit(10);
 
   return data;
+}
+
+export async function getAlertById(id: string) {
+  cacheTag('alert-by-id');
+  cacheLife('hours');
+
+  const data = await db.select().from(alerts).where(eq(alerts.id, id));
+  return data[0];
+}
+
+export async function getUserById(id: string) {
+  cacheTag('user-by-id');
+  cacheLife('hours');
+
+  const data = await db.select().from(user).where(eq(user.id, id));
+  return data[0];
 }
