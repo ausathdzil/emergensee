@@ -8,19 +8,21 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import {
   getActiveAlerts,
   getEmergencyReports,
-  getTotalReports
+  getTotalReports,
 } from '@/db/data';
-import { Alert } from '@/db/schema';
-import {
-  Loader,
-  TrendingDown,
-  TrendingUp
-} from 'lucide-react';
+import { Loader, TrendingDown, TrendingUp } from 'lucide-react';
 import { Suspense } from 'react';
-import { columns } from './alert-table-columns';
-import { DataTable } from './data-table';
+import { alertsDummy } from './peringatan/page';
 import { SymptomsTrendChart } from './symptoms-trend-chart';
 
 const totalReportsDummy = {
@@ -33,95 +35,12 @@ const emergencyReportsDummy = {
   yesterday: 12,
 };
 
-const activeAlertsDummy = {
-  count: 5,
-};
-
-const alertsDummy: Alert[] = [
-  {
-    id: '1',
-    type: 'Lonjakan Kasus IGD',
-    district: 'Jakarta',
-    status: 'Aktif',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    aiAnalysis: {},
-    province: 'Jakarta',
-    city: 'Jakarta',
-    relatedSymptoms: [],
-    reviewedBy: null,
-    reviewedAt: null,
-    notes: null,
-  },
-  {
-    id: '2',
-    type: 'Lonjakan Kasus IGD',
-    district: 'Jakarta',
-    status: 'Aktif',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    aiAnalysis: {},
-    province: 'Jakarta',
-    city: 'Jakarta',
-    relatedSymptoms: [],
-    reviewedBy: null,
-    reviewedAt: null,
-    notes: null,
-  },
-  {
-    id: '3',
-    type: 'Lonjakan Kasus IGD',
-    district: 'Jakarta',
-    status: 'Aktif',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    aiAnalysis: {},
-    province: 'Jakarta',
-    city: 'Jakarta',
-    relatedSymptoms: [],
-    reviewedBy: null,
-    reviewedAt: null,
-    notes: null,
-  },
-  {
-    id: '4',
-    type: 'Lonjakan Kasus IGD',
-    district: 'Jakarta',
-    status: 'Aktif',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    aiAnalysis: {},
-    province: 'Jakarta',
-    city: 'Jakarta',
-    relatedSymptoms: [],
-    reviewedBy: null,
-    reviewedAt: null,
-    notes: null,
-  },
-  {
-    id: '5',
-    type: 'Lonjakan Kasus IGD',
-    district: 'Jakarta',
-    status: 'Aktif',
-    createdAt: new Date(),
-    updatedAt: new Date(),
-    aiAnalysis: {},
-    province: 'Jakarta',
-    city: 'Jakarta',
-    relatedSymptoms: [],
-    reviewedBy: null,
-    reviewedAt: null,
-    notes: null,
-  },
-];
-
-export default async function Dashboard() {
+export default function Dashboard() {
   // const [totalReports, igdReports, activeAlerts, allAlerts, symptomsTrend] =
   //   await Promise.all([
   //     getTotalReports(),
   //     getEmergencyReports(),
   //     getActiveAlerts(),
-  //     getAllAlerts(),
   //     getReportsBySymptoms(),
   //   ]);
 
@@ -136,10 +55,10 @@ export default async function Dashboard() {
             <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @2xl/main:grid-cols-3">
               <TotalReports totalReports={totalReportsDummy} />
               <EmergencyReports emergencyReports={emergencyReportsDummy} />
-              <ActiveAlerts activeAlerts={activeAlertsDummy} />
+              <ActiveAlerts alerts={alertsDummy} />
             </div>
             <SymptomsTrendChart />
-            <DataTable columns={columns} data={alertsDummy} />
+            <ActiveAlertsTable alerts={alertsDummy} />
           </Suspense>
         </div>
       </main>
@@ -248,16 +167,18 @@ function EmergencyReports({
 }
 
 function ActiveAlerts({
-  activeAlerts,
+  alerts,
 }: {
-  activeAlerts: Awaited<ReturnType<typeof getActiveAlerts>>;
+  alerts: Awaited<ReturnType<typeof getActiveAlerts>>;
 }) {
+  const activeAlerts = alerts.filter((alert) => alert.status === 'Aktif');
+
   return (
     <Card className="@container/card">
       <CardHeader>
         <CardDescription>Peringatan Aktif</CardDescription>
         <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
-          {activeAlerts.count}
+          {activeAlerts.length}
         </CardTitle>
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1.5 text-sm">
@@ -266,5 +187,49 @@ function ActiveAlerts({
         </div>
       </CardFooter>
     </Card>
+  );
+}
+
+function ActiveAlertsTable({
+  alerts,
+}: {
+  alerts: Awaited<ReturnType<typeof getActiveAlerts>>;
+}) {
+  const recentActiveAlerts = alerts
+    .filter((alert) => alert.status === 'Aktif')
+    .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+    .slice(0, 5);
+
+  return (
+    <div className="rounded-md border overflow-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>No</TableHead>
+            <TableHead>Tipe</TableHead>
+            <TableHead>Lokasi</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead>Tanggal</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {recentActiveAlerts.map((alert, i) => (
+            <TableRow key={alert.id}>
+              <TableCell>{i + 1}</TableCell>
+              <TableCell>{alert.type}</TableCell>
+              <TableCell>{alert.district}</TableCell>
+              <TableCell>{alert.status}</TableCell>
+              <TableCell>
+                {alert.createdAt.toLocaleString('id-ID', {
+                  year: 'numeric',
+                  month: 'long',
+                  day: 'numeric',
+                })}
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   );
 }

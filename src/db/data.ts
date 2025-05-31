@@ -1,3 +1,5 @@
+'use cache';
+
 import { and, count, desc, eq, gte, lt, sql } from 'drizzle-orm';
 import {
   unstable_cacheLife as cacheLife,
@@ -7,27 +9,25 @@ import { db } from '.';
 import { alerts, symptomReports } from './schema';
 
 export async function getTotalReports() {
-  'use cache';
-
   cacheTag('total-reports');
   cacheLife('days');
 
   const now = Date.now();
-  const todayStart = new Date(now - 24 * 60 * 60 * 1000);
-  const yesterdayStart = new Date(now - 48 * 60 * 60 * 1000);
+  const today = new Date(now - 24 * 60 * 60 * 1000);
+  const yesterday = new Date(now - 48 * 60 * 60 * 1000);
 
   const data = await db
     .select({
       today: sql<number>`
         COALESCE(SUM(CASE 
-          WHEN ${symptomReports.createdAt} >= ${todayStart} AND ${
+          WHEN ${symptomReports.createdAt} >= ${today} AND ${
         symptomReports.createdAt
       } < ${new Date()}
           THEN 1 ELSE 0 END
         ), 0)`,
       yesterday: sql<number>`
         COALESCE(SUM(CASE 
-          WHEN ${symptomReports.createdAt} >= ${yesterdayStart} AND ${symptomReports.createdAt} < ${todayStart}
+          WHEN ${symptomReports.createdAt} >= ${yesterday} AND ${symptomReports.createdAt} < ${today}
           THEN 1 ELSE 0 END
         ), 0)`,
     })
@@ -37,14 +37,12 @@ export async function getTotalReports() {
 }
 
 export async function getEmergencyReports() {
-  'use cache';
-
   cacheTag('emergency-reports');
   cacheLife('days');
 
   const now = Date.now();
-  const todayStart = new Date(now - 24 * 60 * 60 * 1000);
-  const yesterdayStart = new Date(now - 48 * 60 * 60 * 1000);
+  const today = new Date(now - 24 * 60 * 60 * 1000);
+  const yesterday = new Date(now - 48 * 60 * 60 * 1000);
 
   const data = await db
     .select({
@@ -52,12 +50,12 @@ export async function getEmergencyReports() {
         COALESCE(SUM(CASE 
           WHEN ${symptomReports.isEmergency} = true AND ${
         symptomReports.createdAt
-      } >= ${todayStart} AND ${symptomReports.createdAt} < ${new Date()}
+      } >= ${today} AND ${symptomReports.createdAt} < ${new Date()}
           THEN 1 ELSE 0 END
         ), 0)`,
       yesterday: sql<number>`
         COALESCE(SUM(CASE 
-          WHEN ${symptomReports.isEmergency} = true AND ${symptomReports.createdAt} >= ${yesterdayStart} AND ${symptomReports.createdAt} < ${todayStart}
+          WHEN ${symptomReports.isEmergency} = true AND ${symptomReports.createdAt} >= ${yesterday} AND ${symptomReports.createdAt} < ${today}
           THEN 1 ELSE 0 END
         ), 0)`,
     })
@@ -67,24 +65,18 @@ export async function getEmergencyReports() {
 }
 
 export async function getActiveAlerts() {
-  'use cache';
-
   cacheTag('active-alerts');
   cacheLife('hours');
 
   const data = await db
-    .select({
-      count: count(),
-    })
+    .select()
     .from(alerts)
     .where(eq(alerts.status, 'active'));
 
-  return data[0];
+  return data;
 }
 
 export async function getReportsBySymptoms() {
-  'use cache';
-
   cacheTag('reports-by-symptoms');
   cacheLife('days');
 
@@ -104,8 +96,6 @@ export async function getReportsBySymptoms() {
 }
 
 export async function getSymptomsAndLocations() {
-  'use cache';
-
   cacheTag('symptoms-and-locations');
   cacheLife('days');
 
@@ -134,19 +124,15 @@ export async function getSymptomsAndLocations() {
 }
 
 export async function getAllAlerts() {
-  'use cache';
-
   cacheTag('all-alerts');
   cacheLife('hours');
 
-  const data = await db.select().from(alerts);
+  const data = await db.select().from(alerts).orderBy(desc(alerts.createdAt));
 
   return data;
 }
 
 export async function getAllReportsIn7Days() {
-  'use cache';
-
   cacheTag('all-reports-in-7-days');
   cacheLife('days');
 

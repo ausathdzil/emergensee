@@ -8,11 +8,11 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import {
-  BellRingIcon,
   ChartLineIcon,
   CircleGaugeIcon,
   CogIcon,
-  MapIcon,
+  MapPinnedIcon,
+  TriangleAlertIcon
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -26,12 +26,12 @@ const items = [
   {
     title: 'Epidemiologi',
     url: '/dashboard/epidemiologi',
-    icon: MapIcon,
+    icon: MapPinnedIcon,
   },
   {
     title: 'Peringatan',
     url: '/dashboard/peringatan',
-    icon: BellRingIcon,
+    icon: TriangleAlertIcon,
   },
   {
     title: 'Analisis',

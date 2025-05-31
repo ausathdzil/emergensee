@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Alert } from '@/db/schema';
 import { ColumnDef } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import { CopyIcon, EditIcon, MoreHorizontal, Trash2Icon } from 'lucide-react';
 
 export const columns: ColumnDef<Alert>[] = [
   {
@@ -43,7 +43,7 @@ export const columns: ColumnDef<Alert>[] = [
   {
     id: 'actions',
     cell: ({ row }) => {
-      const payment = row.original;
+      const alert = row.original;
 
       return (
         <DropdownMenu>
@@ -56,13 +56,20 @@ export const columns: ColumnDef<Alert>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(payment.id)}
+              onClick={() => navigator.clipboard.writeText(alert.id)}
             >
-              Copy payment ID
+              <CopyIcon />
+              Salin ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View customer</DropdownMenuItem>
-            <DropdownMenuItem>View payment details</DropdownMenuItem>
+            <DropdownMenuItem>
+              <EditIcon />
+              Ubah Detail
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Trash2Icon />
+              Hapus
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       );
