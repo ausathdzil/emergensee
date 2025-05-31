@@ -1,4 +1,5 @@
 import { Badge } from '@/components/ui/badge';
+import { buttonVariants } from '@/components/ui/button';
 import {
   Card,
   CardAction,
@@ -20,7 +21,16 @@ import {
   getEmergencyReports,
   getTotalReports,
 } from '@/db/data';
-import { Loader, TrendingDown, TrendingUp } from 'lucide-react';
+import {
+  ChevronRightIcon,
+  CircleAlertIcon,
+  CircleCheckIcon,
+  Loader,
+  LoaderIcon,
+  TrendingDown,
+  TrendingUp,
+} from 'lucide-react';
+import Link from 'next/link';
 import { Suspense } from 'react';
 import { alertsDummy } from './peringatan/page';
 import { SymptomsTrendChart } from './symptoms-trend-chart';
@@ -201,30 +211,57 @@ function ActiveAlertsTable({
     .slice(0, 5);
 
   return (
-    <div className="rounded-md border overflow-auto">
+    <div className="rounded-lg border overflow-hidden">
       <Table>
-        <TableHeader>
+        <TableHeader className="bg-muted">
           <TableRow>
             <TableHead>No</TableHead>
             <TableHead>Tipe</TableHead>
             <TableHead>Lokasi</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Tanggal</TableHead>
+            <TableHead></TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
           {recentActiveAlerts.map((alert, i) => (
             <TableRow key={alert.id}>
               <TableCell>{i + 1}</TableCell>
-              <TableCell>{alert.type}</TableCell>
+              <TableCell>
+                <Badge variant="outline" className="px-1.5">
+                  {alert.type}
+                </Badge>
+              </TableCell>
               <TableCell>{alert.district}</TableCell>
-              <TableCell>{alert.status}</TableCell>
+              <TableCell>
+                <Badge
+                  variant="outline"
+                  className="text-muted-foreground px-1.5"
+                >
+                  {alert.status === 'Selesai' ? (
+                    <CircleCheckIcon className="fill-primary stroke-background" />
+                  ) : alert.status === 'Aktif' ? (
+                    <LoaderIcon />
+                  ) : (
+                    <CircleAlertIcon className="fill-destructive stroke-background" />
+                  )}
+                  {alert.status}
+                </Badge>
+              </TableCell>
               <TableCell>
                 {alert.createdAt.toLocaleString('id-ID', {
                   year: 'numeric',
                   month: 'long',
                   day: 'numeric',
                 })}
+              </TableCell>
+              <TableCell>
+                <Link
+                  className={buttonVariants({ variant: 'ghost', size: 'icon' })}
+                  href={`/dashboard/peringatan/${alert.id}`}
+                >
+                  <ChevronRightIcon />
+                </Link>
               </TableCell>
             </TableRow>
           ))}

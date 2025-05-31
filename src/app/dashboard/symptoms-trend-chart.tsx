@@ -40,16 +40,6 @@ export function SymptomsTrendChart() {
     { symptom: 'Asam Lambung', count: 20 },
     { symptom: 'Sakit Perut', count: 15 },
     { symptom: 'Demam', count: 10 },
-    { symptom: 'Diare', count: 10 },
-    { symptom: 'Meriang', count: 10 },
-  ];
-
-  const barColors = [
-    'var(--color-chart-1)',
-    'var(--color-chart-2)',
-    'var(--color-chart-3)',
-    'var(--color-chart-4)',
-    'var(--color-chart-5)',
   ];
 
   const chartConfig: ChartConfig = {
@@ -73,6 +63,68 @@ export function SymptomsTrendChart() {
           config={chartConfig}
         >
           <BarChart accessibilityLayer data={chartData}>
+            <defs>
+              <linearGradient id="barGradient1" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-chart-1)"
+                  stopOpacity="0.8"
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-chart-1)"
+                  stopOpacity="1"
+                />
+              </linearGradient>
+              <linearGradient id="barGradient2" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-chart-2)"
+                  stopOpacity="0.8"
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-chart-2)"
+                  stopOpacity="1"
+                />
+              </linearGradient>
+              <linearGradient id="barGradient3" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-chart-3)"
+                  stopOpacity="0.8"
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-chart-3)"
+                  stopOpacity="1"
+                />
+              </linearGradient>
+              <linearGradient id="barGradient4" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-chart-4)"
+                  stopOpacity="0.8"
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-chart-4)"
+                  stopOpacity="1"
+                />
+              </linearGradient>
+              <linearGradient id="barGradient5" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-chart-5)"
+                  stopOpacity="0.8"
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-chart-5)"
+                  stopOpacity="1"
+                />
+              </linearGradient>
+            </defs>
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey="symptom"
@@ -85,11 +137,11 @@ export function SymptomsTrendChart() {
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
-            <Bar dataKey="count" strokeWidth={2} radius={8} fill={barColors[0]}>
+            <Bar dataKey="count" strokeWidth={2} radius={8}>
               {chartData.map((entry, index) => (
                 <Cell
                   key={`cell-${index}`}
-                  fill={barColors[index % barColors.length]}
+                  fill={`url(#barGradient${5 - (index % 5)})`}
                 />
               ))}
             </Bar>
