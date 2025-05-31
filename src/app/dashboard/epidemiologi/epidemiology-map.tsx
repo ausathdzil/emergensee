@@ -9,9 +9,14 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { getSymptomsAndLocations } from '@/db/data';
+import type { SymptomWithLocations } from '@/db/data';
 import { IconChevronDown } from '@tabler/icons-react';
-import type { FeatureCollection, Point } from 'geojson';
+import type {
+  Feature,
+  FeatureCollection,
+  GeoJsonProperties,
+  Point,
+} from 'geojson';
 import mapboxgl, { LngLatLike } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import {
@@ -43,7 +48,7 @@ const CITIES = [
 export function EpidemiologyMap({
   symptomsAndLocations,
 }: {
-  symptomsAndLocations: Awaited<ReturnType<typeof getSymptomsAndLocations>>;
+  symptomsAndLocations: SymptomWithLocations[];
 }) {
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -53,11 +58,11 @@ export function EpidemiologyMap({
   const [isDirty, setIsDirty] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
 
-  const uniqueSymptoms = useMemo(
+  const uniqueSymptoms: string[] = useMemo(
     () => Array.from(new Set(symptomsAndLocations.map((item) => item.symptom))),
     [symptomsAndLocations]
   );
-  const [selectedSymptom, setSelectedSymptom] = useState(
+  const [selectedSymptom, setSelectedSymptom] = useState<string>(
     uniqueSymptoms[0] || ''
   );
   const [selectedCity, setSelectedCity] = useState(CITIES[0].name);
@@ -118,22 +123,39 @@ export function EpidemiologyMap({
   useEffect(() => {
     if (!mapLoaded || !mapRef.current) return;
     const map = mapRef.current;
+
+    // Only generate features for valid locations
+    const features: Feature<Point, GeoJsonProperties>[] =
+      symptomsAndLocations
+        .filter((item) => item.symptom === selectedSymptom)
+        .flatMap((item) =>
+          Array.isArray(item.locations)
+            ? item.locations
+                .filter(
+                  (loc) =>
+                    loc &&
+                    !isNaN(Number(loc.longitude)) &&
+                    !isNaN(Number(loc.latitude))
+                )
+                .map((loc) => ({
+                  type: 'Feature' as const,
+                  properties: { symptom: item.symptom },
+                  geometry: {
+                    type: 'Point' as const,
+                    coordinates: [
+                      parseFloat(String(loc.longitude)),
+                      parseFloat(String(loc.latitude)),
+                    ],
+                  },
+                }))
+            : []
+        ) || [];
+
     const geojson: FeatureCollection<Point> = {
       type: 'FeatureCollection',
-      features: symptomsAndLocations
-        .filter((item) => item.symptom === selectedSymptom)
-        .map((item) => ({
-          type: 'Feature',
-          properties: { symptom: item.symptom },
-          geometry: {
-            type: 'Point',
-            coordinates: [
-              parseFloat(item.longitude),
-              parseFloat(item.latitude),
-            ],
-          },
-        })),
+      features,
     };
+
     const source = map.getSource('symptoms');
     if (!source) {
       map.addSource('symptoms', {

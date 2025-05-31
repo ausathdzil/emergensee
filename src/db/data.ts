@@ -101,34 +101,54 @@ export async function getReportsBySymptoms() {
   return data;
 }
 
-export async function getSymptomsAndLocations() {
+export type SymptomWithLocations = {
+  symptom: string;
+  count: number;
+  locations: { longitude: string; latitude: string }[];
+};
+
+export async function getSymptomsAndLocations(): Promise<
+  SymptomWithLocations[]
+> {
   cacheTag('symptoms-and-locations');
   cacheLife('days');
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-  const data = await db
-    .select({
-      symptom: sql<string>`unnest(${symptomReports.symptoms})`,
-      longitude: symptomReports.longitude,
-      latitude: symptomReports.latitude,
-    })
-    .from(symptomReports)
-    .where(
-      and(
-        gte(symptomReports.createdAt, sevenDaysAgo),
-        lt(symptomReports.createdAt, new Date())
-      )
-    )
-    .groupBy(
-      symptomReports.symptoms,
-      symptomReports.longitude,
-      symptomReports.latitude
-    )
-    .orderBy(desc(count()))
-    .limit(10);
+  const data = await db.execute(sql`
+    SELECT
+      symptom,
+      COUNT(*) as count,
+      ARRAY_AGG(ROW(longitude, latitude)::text) as locations
+    FROM (
+      SELECT
+        UNNEST(symptoms) as symptom,
+        longitude,
+        latitude
+      FROM symptom_reports
+      WHERE created_at >= ${sevenDaysAgo} AND created_at < ${new Date()}
+    ) as unnested
+    GROUP BY symptom
+    ORDER BY count DESC
+    LIMIT 10;
+  `);
 
-  return data;
+  function parseLocationRow(rowStr: string) {
+    const [longitude, latitude] = rowStr.replace(/[()]/g, '').split(',');
+    return { longitude: Number(longitude), latitude: Number(latitude) };
+  }
+
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  return (data.rows as any[]).map((row) => ({
+    symptom: row.symptom,
+    count: Number(row.count),
+    locations: Array.isArray(row.locations)
+      ? /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+        row.locations.map((loc: any) =>
+          typeof loc === 'string' ? parseLocationRow(loc) : loc
+        )
+      : [],
+  }));
 }
 
 export async function getAllAlerts() {
