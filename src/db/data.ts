@@ -80,7 +80,7 @@ export async function getReportsBySymptoms() {
   cacheTag('reports-by-symptoms');
   cacheLife('days');
 
-  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+  const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
   const data = await db
     .select({
@@ -88,7 +88,12 @@ export async function getReportsBySymptoms() {
       count: count(),
     })
     .from(symptomReports)
-    .where(gte(symptomReports.createdAt, thirtyDaysAgo))
+    .where(
+      and(
+        gte(symptomReports.createdAt, sevenDaysAgo),
+        lt(symptomReports.createdAt, new Date())
+      )
+    )
     .groupBy(sql`unnest(${symptomReports.symptoms})`)
     .orderBy(desc(count()))
     .limit(7);
@@ -119,7 +124,9 @@ export async function getSymptomsAndLocations() {
       symptomReports.symptoms,
       symptomReports.longitude,
       symptomReports.latitude
-    );
+    )
+    .orderBy(desc(count()))
+    .limit(10);
 
   return data;
 }

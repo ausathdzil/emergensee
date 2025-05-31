@@ -9,67 +9,59 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
+import { getSymptomsAndLocations } from '@/db/data';
+import { IconChevronDown } from '@tabler/icons-react';
 import type { FeatureCollection, Point } from 'geojson';
 import mapboxgl, { LngLatLike } from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
-const mapboxAccessToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN!;
+const INITIAL_CENTER = [117.96886, -2.5669] as LngLatLike;
+const INITIAL_ZOOM = 4.5;
 
-const INITIAL_CENTER = [106.83662, -6.18232] as LngLatLike;
-const INITIAL_ZOOM = 11;
-
-// Type for symptom location
-type SymptomLocation = {
-  symptom: string;
-  longitude: string;
-  latitude: string;
-};
-
-// Restore dummy data for demo/testing
-const symptomsAndLocationsDummy: SymptomLocation[] = [
-  { symptom: 'Demam', longitude: '106.83662', latitude: '-6.18232' },
-  { symptom: 'Demam', longitude: '106.83700', latitude: '-6.18300' },
-  { symptom: 'Demam', longitude: '106.83900', latitude: '-6.18100' },
-  { symptom: 'Demam', longitude: '106.84000', latitude: '-6.18000' },
-  { symptom: 'Batuk', longitude: '106.84', latitude: '-6.18' },
-  { symptom: 'Batuk', longitude: '106.84100', latitude: '-6.17900' },
-  { symptom: 'Batuk', longitude: '106.84200', latitude: '-6.17800' },
-  { symptom: 'Batuk', longitude: '106.835', latitude: '-6.175' },
-  { symptom: 'Pusing', longitude: '106.83', latitude: '-6.185' },
-  { symptom: 'Pusing', longitude: '106.845', latitude: '-6.178' },
-  { symptom: 'Pusing', longitude: '106.84600', latitude: '-6.17700' },
-  { symptom: 'Pusing', longitude: '106.84700', latitude: '-6.17600' },
-  { symptom: 'Radang', longitude: '106.85000', latitude: '-6.18000' },
-  { symptom: 'Radang', longitude: '106.85100', latitude: '-6.18100' },
-  { symptom: 'Radang', longitude: '106.85200', latitude: '-6.18200' },
-  { symptom: 'Lemas', longitude: '106.85500', latitude: '-6.18500' },
-  { symptom: 'Lemas', longitude: '106.85600', latitude: '-6.18600' },
-  { symptom: 'Lemas', longitude: '106.85700', latitude: '-6.18700' },
+const CITIES = [
+  { name: 'Indonesia', coords: [117.96886, -2.5669], zoom: 4.5 },
+  { name: 'Jakarta', coords: [106.8456, -6.2088], zoom: 10 },
+  { name: 'Surabaya', coords: [112.7508, -7.2575], zoom: 11 },
+  { name: 'Medan', coords: [98.6722, 3.5952], zoom: 11 },
+  { name: 'Bandung', coords: [107.6191, -6.9175], zoom: 11 },
+  { name: 'Makassar', coords: [119.4124, -5.1477], zoom: 11 },
+  { name: 'Denpasar', coords: [115.2167, -8.65], zoom: 11 },
+  { name: 'Yogyakarta', coords: [110.3695, -7.7956], zoom: 11 },
+  { name: 'Palembang', coords: [104.7458, -2.9909], zoom: 11 },
+  { name: 'Semarang', coords: [110.4269, -6.9932], zoom: 11 },
+  { name: 'Balikpapan', coords: [116.8312, -1.2654], zoom: 11 },
 ];
 
-export function EpidemiologyMap() {
-  const mapRef = useRef<mapboxgl.Map>(null);
+export function EpidemiologyMap({
+  symptomsAndLocations,
+}: {
+  symptomsAndLocations: Awaited<ReturnType<typeof getSymptomsAndLocations>>;
+}) {
+  const mapRef = useRef<mapboxgl.Map | null>(null);
   const mapContainerRef = useRef<HTMLDivElement>(null);
+  const selectId = useId();
+  const citySelectId = useId();
 
-  const [center, setCenter] = useState<LngLatLike>(INITIAL_CENTER);
-  const [zoom, setZoom] = useState<number>(INITIAL_ZOOM);
   const [isDirty, setIsDirty] = useState(false);
   const [mapLoaded, setMapLoaded] = useState(false);
 
-  // Memoize unique symptoms for select options
   const uniqueSymptoms = useMemo(
-    () =>
-      Array.from(
-        new Set(symptomsAndLocationsDummy.map((item) => item.symptom))
-      ),
-    []
+    () => Array.from(new Set(symptomsAndLocations.map((item) => item.symptom))),
+    [symptomsAndLocations]
   );
   const [selectedSymptom, setSelectedSymptom] = useState(
     uniqueSymptoms[0] || ''
   );
+  const [selectedCity, setSelectedCity] = useState(CITIES[0].name);
 
-  // Keep selectedSymptom in sync with uniqueSymptoms
   useEffect(() => {
     if (!uniqueSymptoms.includes(selectedSymptom)) {
       setSelectedSymptom(uniqueSymptoms[0] || '');
@@ -79,59 +71,76 @@ export function EpidemiologyMap() {
   const handleButtonClick = useCallback(() => {
     if (mapRef.current) {
       mapRef.current.flyTo({
-        center: center,
-        zoom: zoom,
+        center: INITIAL_CENTER,
+        zoom: INITIAL_ZOOM,
       });
     }
-  }, [center, zoom]);
+  }, []);
 
-  // Initialize map only once
   useEffect(() => {
-    mapboxgl.accessToken = mapboxAccessToken;
     if (mapRef.current || !mapContainerRef.current) return;
 
     mapRef.current = new mapboxgl.Map({
+      accessToken: process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN || '',
       container: mapContainerRef.current,
       center: INITIAL_CENTER,
       zoom: INITIAL_ZOOM,
-      style: 'mapbox://styles/mapbox/dark-v11',
     });
 
     mapRef.current.on('load', () => {
       setMapLoaded(true);
-      // Initial data for the selected symptom
-      const initialGeojson: FeatureCollection<Point> = {
-        type: 'FeatureCollection',
-        features: symptomsAndLocationsDummy
-          .filter((item) => item.symptom === (uniqueSymptoms[0] || ''))
-          .map((item) => ({
-            type: 'Feature',
-            properties: { symptom: item.symptom },
-            geometry: {
-              type: 'Point',
-              coordinates: [
-                parseFloat(item.longitude),
-                parseFloat(item.latitude),
-              ],
-            },
-          })),
-      };
-      // Remove source/layers if they already exist (for hot reload/dev)
-      if (mapRef.current!.getLayer('symptoms-heatmap')) {
-        mapRef.current!.removeLayer('symptoms-heatmap');
+    });
+
+    const handleMove = () => {
+      if (!mapRef.current) return;
+      const mapCenter = mapRef.current.getCenter();
+      const mapZoom = mapRef.current.getZoom();
+      const isCenterDirty =
+        Math.abs(mapCenter.lng - (INITIAL_CENTER as [number, number])[0]) >
+          1e-5 ||
+        Math.abs(mapCenter.lat - (INITIAL_CENTER as [number, number])[1]) >
+          1e-5;
+      const isZoomDirty = Math.abs(mapZoom - INITIAL_ZOOM) > 1e-5;
+      setIsDirty(isCenterDirty || isZoomDirty);
+    };
+
+    mapRef.current.on('move', handleMove);
+
+    return () => {
+      if (mapRef.current) {
+        mapRef.current.off('move', handleMove);
+        mapRef.current.remove();
+        mapRef.current = null;
       }
-      if (mapRef.current!.getLayer('symptoms-circle')) {
-        mapRef.current!.removeLayer('symptoms-circle');
-      }
-      if (mapRef.current!.getSource('symptoms')) {
-        mapRef.current!.removeSource('symptoms');
-      }
-      mapRef.current!.addSource('symptoms', {
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!mapLoaded || !mapRef.current) return;
+    const map = mapRef.current;
+    const geojson: FeatureCollection<Point> = {
+      type: 'FeatureCollection',
+      features: symptomsAndLocations
+        .filter((item) => item.symptom === selectedSymptom)
+        .map((item) => ({
+          type: 'Feature',
+          properties: { symptom: item.symptom },
+          geometry: {
+            type: 'Point',
+            coordinates: [
+              parseFloat(item.longitude),
+              parseFloat(item.latitude),
+            ],
+          },
+        })),
+    };
+    const source = map.getSource('symptoms');
+    if (!source) {
+      map.addSource('symptoms', {
         type: 'geojson',
-        data: initialGeojson,
+        data: geojson,
       });
-      // Add heatmap layer
-      mapRef.current!.addLayer({
+      map.addLayer({
         id: 'symptoms-heatmap',
         type: 'heatmap',
         source: 'symptoms',
@@ -176,8 +185,7 @@ export function EpidemiologyMap() {
           ],
         },
       });
-      // Add circle layer for higher zoom, above the heatmap
-      mapRef.current!.addLayer(
+      map.addLayer(
         {
           id: 'symptoms-circle',
           type: 'circle',
@@ -193,55 +201,30 @@ export function EpidemiologyMap() {
         },
         'symptoms-heatmap'
       );
-    });
-
-    mapRef.current.on('move', () => {
-      const mapCenter = mapRef.current!.getCenter();
-      const mapZoom = mapRef.current!.getZoom();
-      setCenter(mapCenter);
-      setZoom(mapZoom);
-      const isCenterDirty =
-        Math.abs(mapCenter.lng - (INITIAL_CENTER as [number, number])[0]) >
-          1e-5 ||
-        Math.abs(mapCenter.lat - (INITIAL_CENTER as [number, number])[1]) >
-          1e-5;
-      const isZoomDirty = Math.abs(mapZoom - INITIAL_ZOOM) > 1e-5;
-      setIsDirty(isCenterDirty || isZoomDirty);
-    });
-
-    return () => {
-      if (mapRef.current) {
-        mapRef.current.remove();
-        mapRef.current = null;
-      }
-    };
-  }, [uniqueSymptoms]);
-
-  // Update geojson source data when selectedSymptom or dataToUse changes and map is loaded
-  useEffect(() => {
-    if (!mapLoaded || !mapRef.current) return;
-    const map = mapRef.current;
-    const source = map.getSource('symptoms');
-    if (source && 'setData' in source) {
-      const geojson: FeatureCollection<Point> = {
-        type: 'FeatureCollection',
-        features: symptomsAndLocationsDummy
-          .filter((item) => item.symptom === selectedSymptom)
-          .map((item) => ({
-            type: 'Feature',
-            properties: { symptom: item.symptom },
-            geometry: {
-              type: 'Point',
-              coordinates: [
-                parseFloat(item.longitude),
-                parseFloat(item.latitude),
-              ],
-            },
-          })),
-      };
+    } else if ('setData' in source) {
       (source as mapboxgl.GeoJSONSource).setData(geojson);
     }
-  }, [selectedSymptom, mapLoaded, uniqueSymptoms]);
+  }, [selectedSymptom, mapLoaded, symptomsAndLocations]);
+
+  const handleSelectChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) =>
+      setSelectedSymptom(e.target.value),
+    []
+  );
+
+  const handleCityChange = useCallback(
+    (e: React.ChangeEvent<HTMLSelectElement>) => {
+      const city = CITIES.find((c) => c.name === e.target.value);
+      setSelectedCity(city?.name || CITIES[0].name);
+      if (city && mapRef.current) {
+        mapRef.current.flyTo({
+          center: city.coords as [number, number],
+          zoom: city.zoom,
+        });
+      }
+    },
+    []
+  );
 
   return (
     <Card>
@@ -251,17 +234,38 @@ export function EpidemiologyMap() {
           Visualisasi berdasarkan laporan dari aplikasi mobile
         </CardDescription>
         <CardAction>
-          <select
-            value={selectedSymptom}
-            onChange={(e) => setSelectedSymptom(e.target.value)}
-            className="w-40 rounded-lg border px-3 py-2"
-          >
-            {uniqueSymptoms.map((symptom) => (
-              <option key={symptom} value={symptom}>
-                {symptom}
-              </option>
-            ))}
-          </select>
+          <div className="flex flex-wrap gap-2 items-center">
+            <div className="relative">
+              <select
+                id={selectId}
+                value={selectedSymptom}
+                onChange={handleSelectChange}
+                className="w-56 rounded-lg border px-3 py-2 appearance-none truncate"
+              >
+                {uniqueSymptoms.map((symptom) => (
+                  <option key={symptom} value={symptom}>
+                    {symptom.charAt(0).toUpperCase() + symptom.slice(1)}
+                  </option>
+                ))}
+              </select>
+              <IconChevronDown className="absolute size-4 right-3 top-1/2 -translate-y-1/2" />
+            </div>
+            <div className="relative">
+              <select
+                id={citySelectId}
+                value={selectedCity}
+                onChange={handleCityChange}
+                className="w-56 rounded-lg border px-3 py-2 appearance-none truncate"
+              >
+                {CITIES.map((city) => (
+                  <option key={city.name} value={city.name}>
+                    {city.name}
+                  </option>
+                ))}
+              </select>
+              <IconChevronDown className="absolute size-4 right-3 top-1/2 -translate-y-1/2" />
+            </div>
+          </div>
         </CardAction>
       </CardHeader>
       <CardContent className="relative">
