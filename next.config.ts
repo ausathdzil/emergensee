@@ -6,7 +6,6 @@ const nextConfig: NextConfig = {
     dynamicIO: true,
     ppr: true,
     nodeMiddleware: true,
-    viewTransition: true,
   },
 };
 

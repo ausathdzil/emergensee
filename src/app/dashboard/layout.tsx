@@ -21,7 +21,7 @@ export default async function DashboardLayout({
   return (
     <SidebarProvider>
       <AppSidebar />
-      <ViewTransition name="fade">{children}</ViewTransition>
+      {children}
     </SidebarProvider>
   );
 }

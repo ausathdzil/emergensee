@@ -99,34 +99,3 @@
     @apply bg-background text-foreground;
   }
 }
-
-@supports (view-transition-name: none) {
-  @media not (prefers-reduced-motion: reduce) {
-    ::view-transition-old(fade) {
-      animation: out 0.4s both;
-    }
-
-    ::view-transition-new(fade) {
-      opacity: 0;
-      animation: in 0.4s both;
-    }
-  }
-}
-
-@keyframes in {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-@keyframes out {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
