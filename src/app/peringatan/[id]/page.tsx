@@ -22,7 +22,6 @@ import {
   IconCircleX,
   IconLoader,
 } from '@tabler/icons-react';
-import { ReportActions } from './report-actions';
 
 interface AlertPageProps {
   params: Promise<{
@@ -69,6 +68,7 @@ function getStatusBadge(status: string) {
 export default async function Alert({ params }: AlertPageProps) {
   const { id } = await params;
   const alert = await getAlertById(id);
+
   let reviewerName = '-';
   if (alert.reviewedBy) {
     const reviewer = await getUserById(alert.reviewedBy);
@@ -85,11 +85,6 @@ export default async function Alert({ params }: AlertPageProps) {
 
   return (
     <div className="flex-1 flex flex-col items-center justify-center">
-      <header className="border-b border-border p-4 w-full">
-        <h1 className="text-center text-xl font-semibold">
-          Peringatan #{alert.id.slice(0, 8)}
-        </h1>
-      </header>
       <main className="flex-1 flex flex-col items-center justify-center p-8 w-full">
         <Card className="w-full data-[slot=card]:from-primary/5 data-[slot=card]:to-card dark:data-[slot=card]:bg-card data-[slot=card]:bg-gradient-to-t data-[slot=card]:shadow-xs">
           <CardHeader>
@@ -99,15 +94,9 @@ export default async function Alert({ params }: AlertPageProps) {
                 <div className="text-xs text-muted-foreground truncate max-w-xs md:max-w-sm lg:max-w-md">
                   {alert.district}, {alert.city}, {alert.province}
                 </div>
-                <div className="flex items-center gap-2">
-                  {getStatusBadge(alert.status)}
-                  <Badge variant="outline" className="px-1.5">
-                    Peringatan #{alert.id.slice(0, 8)}
-                  </Badge>
-                </div>
+                {getStatusBadge(alert.status)}
               </div>
             </CardDescription>
-            <ReportActions id={alert.id} />
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-6">
@@ -142,7 +131,7 @@ export default async function Alert({ params }: AlertPageProps) {
                   <div className="font-semibold text-sm text-muted-foreground">
                     Diperiksa Oleh
                   </div>
-                  <div>{reviewerName}</div>
+                  <div>{reviewerName.charAt(0).toUpperCase()}</div>
                 </div>
                 <div>
                   <div className="font-semibold text-sm text-muted-foreground">
