@@ -5,6 +5,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uuid,
 } from 'drizzle-orm/pg-core';
 
 export const user = pgTable('user', {
@@ -73,7 +74,7 @@ export const verification = pgTable('verification', {
 });
 
 export const symptomReports = pgTable('symptom_reports', {
-  id: text('id').primaryKey(),
+  id: uuid('id').defaultRandom().primaryKey(),
   userId: text('user_id')
     .notNull()
     .references(() => user.id, { onDelete: 'cascade' }),
@@ -97,7 +98,9 @@ export const symptomReports = pgTable('symptom_reports', {
 });
 
 export const alerts = pgTable('alerts', {
-  id: text('id').primaryKey(),
+  id: text('id')
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
   type: text('type').notNull(),
   province: text('province').notNull(),
   city: text('city').notNull(),
