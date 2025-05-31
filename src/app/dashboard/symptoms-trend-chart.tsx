@@ -15,32 +15,17 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from '@/components/ui/chart';
+import { getReportsBySymptoms } from '@/db/data';
 
-export function SymptomsTrendChart() {
-  // const chartData = symptomsTrend.map((item) => ({
-  //   symptom: item.symptom,
-  //   count: Number(item.count),
-  // }));
-  //
-  // const chartConfig: ChartConfig = {
-  //   symptom: {
-  //     label: 'Gejala',
-  //   },
-  //   count: {
-  //     label: 'Kasus',
-  //   },
-  // };
-
-  const chartData = [
-    { symptom: 'Radang', count: 50 },
-    { symptom: 'Sakit Kepala', count: 40 },
-    { symptom: 'Pilek', count: 30 },
-    { symptom: 'DBD', count: 25 },
-    { symptom: 'Batuk', count: 20 },
-    { symptom: 'Asam Lambung', count: 20 },
-    { symptom: 'Sakit Perut', count: 15 },
-    { symptom: 'Demam', count: 10 },
-  ];
+export function SymptomsTrendChart({
+  symptomsTrend,
+}: {
+  symptomsTrend: Awaited<ReturnType<typeof getReportsBySymptoms>>;
+}) {
+  const chartData = symptomsTrend.map((item) => ({
+    symptom: item.symptom,
+    count: Number(item.count),
+  }));
 
   const chartConfig: ChartConfig = {
     symptom: {
@@ -131,7 +116,9 @@ export function SymptomsTrendChart() {
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) => value}
+              tickFormatter={(value) =>
+                value.charAt(0).toUpperCase() + value.slice(1)
+              }
             />
             <ChartTooltip
               cursor={false}

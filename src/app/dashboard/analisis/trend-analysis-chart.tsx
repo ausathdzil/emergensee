@@ -125,7 +125,7 @@ const chartConfig = {
   },
   igd: {
     label: 'IGD',
-    color: 'var(--primary)',
+    color: 'var(--destructive)',
   },
 } satisfies ChartConfig;
 

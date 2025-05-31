@@ -90,7 +90,8 @@ export async function getReportsBySymptoms() {
     .from(symptomReports)
     .where(gte(symptomReports.createdAt, thirtyDaysAgo))
     .groupBy(sql`unnest(${symptomReports.symptoms})`)
-    .orderBy(desc(count()));
+    .orderBy(desc(count()))
+    .limit(7);
 
   return data;
 }
@@ -132,22 +133,15 @@ export async function getAllAlerts() {
   return data;
 }
 
-export async function getAllReportsIn7Days() {
-  cacheTag('all-reports-in-7-days');
+export async function getRecentReports() {
+  cacheTag('recent-reports');
   cacheLife('days');
 
   const data = await db
     .select()
     .from(symptomReports)
-    .where(
-      and(
-        gte(
-          symptomReports.createdAt,
-          new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-        ),
-        lt(symptomReports.createdAt, new Date())
-      )
-    );
+    .orderBy(desc(symptomReports.createdAt))
+    .limit(5);
 
   return data;
 }

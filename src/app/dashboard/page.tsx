@@ -19,6 +19,7 @@ import {
 import {
   getActiveAlerts,
   getEmergencyReports,
+  getReportsBySymptoms,
   getTotalReports,
 } from '@/db/data';
 import {
@@ -32,24 +33,12 @@ import { Suspense } from 'react';
 import { alertsDummy } from './peringatan/page';
 import { SymptomsTrendChart } from './symptoms-trend-chart';
 
-const totalReportsDummy = {
-  today: 24,
-  yesterday: 20,
-};
-
-const emergencyReportsDummy = {
-  today: 10,
-  yesterday: 12,
-};
-
-export default function Dashboard() {
-  // const [totalReports, igdReports, activeAlerts, allAlerts, symptomsTrend] =
-  //   await Promise.all([
-  //     getTotalReports(),
-  //     getEmergencyReports(),
-  //     getActiveAlerts(),
-  //     getReportsBySymptoms(),
-  //   ]);
+export default async function Dashboard() {
+  const [totalReports, emergencyReports, symptomsTrend] = await Promise.all([
+    getTotalReports(),
+    getEmergencyReports(),
+    getReportsBySymptoms(),
+  ]);
 
   return (
     <div className="flex-1 flex flex-col">
@@ -60,11 +49,11 @@ export default function Dashboard() {
         <div className="flex flex-col gap-4">
           <Suspense fallback={<IconLoader className="animate-spin" />}>
             <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @2xl/main:grid-cols-3">
-              <TotalReports totalReports={totalReportsDummy} />
-              <EmergencyReports emergencyReports={emergencyReportsDummy} />
+              <TotalReports totalReports={totalReports} />
+              <EmergencyReports emergencyReports={emergencyReports} />
               <ActiveAlerts alerts={alertsDummy} />
             </div>
-            <SymptomsTrendChart />
+            <SymptomsTrendChart symptomsTrend={symptomsTrend} />
             <ActiveAlertsTable alerts={alertsDummy} />
           </Suspense>
         </div>
@@ -178,12 +167,12 @@ function ActiveAlerts({
 }: {
   alerts: Awaited<ReturnType<typeof getActiveAlerts>>;
 }) {
-  const activeAlerts = alerts.filter((alert) => alert.status === 'Aktif');
+  const activeAlerts = alerts.filter((alert) => alert.status === 'Terdeteksi');
 
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardDescription>Peringatan Aktif</CardDescription>
+        <CardDescription>Peringatan Terdeteksi</CardDescription>
         <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-warning">
           {activeAlerts.length}
         </CardTitle>
@@ -203,7 +192,7 @@ function ActiveAlertsTable({
   alerts: Awaited<ReturnType<typeof getActiveAlerts>>;
 }) {
   const recentActiveAlerts = alerts
-    .filter((alert) => alert.status === 'Aktif')
+    .filter((alert) => alert.status === 'Terdeteksi')
     .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
     .slice(0, 5);
 
@@ -231,7 +220,7 @@ function ActiveAlertsTable({
               </TableCell>
               <TableCell>{alert.district}</TableCell>
               <TableCell>
-                <Badge className="bg-warning px-1.5">
+                <Badge className="bg-warning/5 text-amber-600 px-1.5">
                   <IconLoader />
                   {alert.status}
                 </Badge>

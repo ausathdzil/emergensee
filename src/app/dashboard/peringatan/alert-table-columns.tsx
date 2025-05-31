@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import {
   IconAlertCircle,
   IconCircleCheck,
+  IconCircleX,
   IconCopy,
   IconDots,
   IconEdit,
@@ -47,24 +48,31 @@ export const columns: ColumnDef<Alert>[] = [
   {
     accessorKey: 'status',
     header: 'Status',
-    cell: ({ row }) => (
-      <Badge
-        className={cn(
-          'px-1.5 bg-destructive',
-          row.original.status === 'Selesai' && 'bg-primary',
-          row.original.status === 'Aktif' && 'bg-warning'
-        )}
-      >
-        {row.original.status === 'Selesai' ? (
-          <IconCircleCheck />
-        ) : row.original.status === 'Aktif' ? (
-          <IconLoader />
-        ) : (
-          <IconAlertCircle />
-        )}
-        {row.original.status}
-      </Badge>
-    ),
+    cell: ({ row }) => {
+      const status = row.original.status;
+      return (
+        <Badge
+          variant={status === 'Tidak valid' ? 'destructive' : 'secondary'}
+          className={cn(
+            'px-1.5',
+            status === 'Tertangani' && 'bg-blue-500/5 text-blue-500',
+            status === 'Dalam penanganan' && 'bg-primary/5 text-primary',
+            status === 'Terdeteksi' && 'bg-warning/5 text-amber-600'
+          )}
+        >
+          {status === 'Tertangani' ? (
+            <IconCircleCheck />
+          ) : status === 'Dalam penanganan' ? (
+            <IconLoader />
+          ) : status === 'Terdeteksi' ? (
+            <IconAlertCircle />
+          ) : status === 'Tidak valid' ? (
+            <IconCircleX />
+          ) : null}
+          {status}
+        </Badge>
+      );
+    },
   },
   {
     accessorKey: 'createdAt',

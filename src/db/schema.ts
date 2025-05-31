@@ -119,27 +119,6 @@ export const alerts = pgTable('alerts', {
     .notNull(),
 });
 
-export const healthcareFasilities = pgTable('healthcare_fasilities', {
-  id: text('id')
-    .primaryKey()
-    .$defaultFn(() => crypto.randomUUID()),
-  name: text('name').notNull(),
-  type: text('type').notNull(),
-  address: text('address').notNull(),
-  latitude: decimal('latitude').notNull(),
-  longitude: decimal('longitude').notNull(),
-  phone: text('phone'),
-  isBpjsPartner: boolean('is_bpjs_partner'),
-  operationHours: text('operation_hours'),
-  createdAt: timestamp('created_at')
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
-  updatedAt: timestamp('updated_at')
-    .$defaultFn(() => /* @__PURE__ */ new Date())
-    .notNull(),
-});
-
 export type User = typeof user.$inferSelect;
 export type SymptomReport = typeof symptomReports.$inferSelect;
-export type HealthcareFasilities = typeof healthcareFasilities.$inferSelect;
 export type Alert = typeof alerts.$inferSelect;
