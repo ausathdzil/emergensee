@@ -8,6 +8,7 @@ import { auth } from '@/lib/auth';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { NavMain } from './nav-main';
+import { NavSecondary } from './nav-secondary';
 import { NavUser } from './nav-user';
 
 export async function AppSidebar() {
@@ -31,6 +32,7 @@ export async function AppSidebar() {
       </SidebarHeader>
       <SidebarContent>
         <NavMain />
+        <NavSecondary />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={user} />

@@ -7,49 +7,34 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import {
-  AreaChartIcon,
-  GaugeIcon,
-  MapPinnedIcon,
-  TriangleAlertIcon
-} from 'lucide-react';
+import { HelpCircleIcon, SettingsIcon } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const items = [
   {
-    title: 'Dashboard',
-    url: '/dashboard',
-    icon: GaugeIcon,
+    title: 'Pengaturan',
+    icon: SettingsIcon,
+    href: '/dashboard/pengaturan',
   },
   {
-    title: 'Epidemiologi',
-    url: '/dashboard/epidemiologi',
-    icon: MapPinnedIcon,
-  },
-  {
-    title: 'Peringatan',
-    url: '/dashboard/peringatan',
-    icon: TriangleAlertIcon,
-  },
-  {
-    title: 'Analisis',
-    url: '/dashboard/analisis',
-    icon: AreaChartIcon,
+    title: 'Bantuan',
+    icon: HelpCircleIcon,
+    href: '#',
   },
 ];
 
-export function NavMain() {
+export function NavSecondary() {
   const pathname = usePathname();
 
   return (
-    <SidebarGroup>
+    <SidebarGroup className="mt-auto">
       <SidebarGroupContent>
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton isActive={pathname === item.url} asChild>
-                <Link href={item.url}>
+              <SidebarMenuButton isActive={pathname === item.href} asChild>
+                <Link href={item.href}>
                   <item.icon />
                   {item.title}
                 </Link>
