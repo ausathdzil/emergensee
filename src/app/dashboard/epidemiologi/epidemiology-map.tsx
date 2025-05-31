@@ -262,7 +262,7 @@ export function EpidemiologyMap({
                 id={selectId}
                 value={selectedSymptom}
                 onChange={handleSelectChange}
-                className="w-56 rounded-lg border px-3 py-2 appearance-none truncate"
+                className="w-56 rounded-lg border px-3 py-2 appearance-none text-sm"
               >
                 {uniqueSymptoms.map((symptom) => (
                   <option key={symptom} value={symptom}>
@@ -277,7 +277,7 @@ export function EpidemiologyMap({
                 id={citySelectId}
                 value={selectedCity}
                 onChange={handleCityChange}
-                className="w-56 rounded-lg border px-3 py-2 appearance-none truncate"
+                className="w-56 rounded-lg border px-3 py-2 appearance-none text-sm"
               >
                 {CITIES.map((city) => (
                   <option key={city.name} value={city.name}>

@@ -31,7 +31,7 @@ export function ReportActions({ id }: { id: string }) {
       <TooltipProvider>
         <div className="flex gap-1.5">
           <Tooltip>
-            <TooltipTrigger asChild>
+            <TooltipTrigger className="cursor-pointer" asChild>
               <Link href={`/dashboard/peringatan/${id}/edit`}>
                 <Button variant="outline" size="icon" aria-label="Edit">
                   <IconEdit />

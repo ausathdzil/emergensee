@@ -23,7 +23,10 @@ import {
   getTotalReports,
 } from '@/db/data';
 import {
+  IconAlertCircle,
+  IconBuildingHospital,
   IconChevronRight,
+  IconClipboardPlus,
   IconLoader,
   IconTrendingDown,
   IconTrendingUp,
@@ -87,8 +90,13 @@ function TotalReports({
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardDescription>Total Laporan Mingguan</CardDescription>
-        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-primary">
+        <CardDescription className="text-lg font-medium text-foreground">
+          Total Laporan Mingguan
+        </CardDescription>
+        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-primary flex items-center gap-1.5">
+          <div className="rounded-full bg-primary/10 p-1">
+            <IconClipboardPlus className="stroke-primary size-5" />
+          </div>
           {totalReports.today}
         </CardTitle>
         {percent !== 0 && (
@@ -137,8 +145,13 @@ function EmergencyReports({
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardDescription>Total Indikasi IGD</CardDescription>
-        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-destructive">
+        <CardDescription className="text-lg font-medium text-foreground">
+          Total Indikasi IGD
+        </CardDescription>
+        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-destructive flex items-center gap-1.5">
+          <div className="rounded-full bg-destructive/10 p-1">
+            <IconBuildingHospital className="stroke-destructive size-5" />
+          </div>
           {emergencyReports.today}
         </CardTitle>
         {percent !== 0 && (
@@ -171,8 +184,13 @@ function DetectedAlerts({
   return (
     <Card className="@container/card">
       <CardHeader>
-        <CardDescription>Peringatan Terdeteksi</CardDescription>
-        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-warning">
+        <CardDescription className="text-lg font-medium text-foreground">
+          Peringatan Terdeteksi
+        </CardDescription>
+        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-warning flex items-center gap-1.5">
+          <div className="rounded-full bg-warning/10 p-1">
+            <IconAlertCircle className="stroke-amber-600 size-5" />
+          </div>
           {alerts.length}
         </CardTitle>
       </CardHeader>

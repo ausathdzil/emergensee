@@ -7,7 +7,8 @@ import { eq } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import z from 'zod';
 import { db } from '.';
-import { account, user } from './schema';
+import { account, alerts, user } from './schema';
+import { redirect } from 'next/navigation';
 
 const UpdateUserFormSchema = z.object({
   name: z.string().min(1).max(50),
@@ -73,4 +74,47 @@ export async function updateUser(
   return {
     message: 'Berhasil mengubah profil',
   };
+}
+
+const UpdateAlertFormSchema = z.object({
+  alertId: z.string().min(1),
+  status: z.enum([
+    'Terdeteksi',
+    'Dalam penanganan',
+    'Tertangani',
+    'Tidak valid',
+  ]),
+  notes: z.string().min(1).max(255),
+});
+
+export async function updateAlert(
+  userId: string,
+  prevState: any,
+  formData: FormData
+) {
+  const rawFormData = {
+    alertId: formData.get('alert-id'),
+    status: formData.get('status'),
+    notes: formData.get('notes'),
+  };
+
+  const validatedFields = UpdateAlertFormSchema.safeParse(rawFormData);
+
+  if (!validatedFields.success) {
+    return { error: validatedFields.error.flatten().fieldErrors };
+  }
+
+  const { alertId, status, notes } = validatedFields.data;
+
+  await db
+    .update(alerts)
+    .set({
+      status: status,
+      notes: notes,
+      reviewedBy: userId,
+    })
+    .where(eq(alerts.id, alertId));
+
+  revalidatePath(`/dashboard/peringatan/${alertId}`);
+  redirect(`/dashboard/peringatan/${alertId}`);
 }

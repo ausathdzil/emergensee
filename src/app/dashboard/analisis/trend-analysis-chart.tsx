@@ -77,7 +77,7 @@ export function TrendAnalysisChart({
           <select
             value={timeRange}
             onChange={(e) => setTimeRange(e.target.value)}
-            className="w-40 rounded-lg border px-3 py-2"
+            className="w-40 rounded-lg border px-3 py-2 text-sm"
             aria-label="Select time range"
           >
             <option value="30d">1 bulan</option>
