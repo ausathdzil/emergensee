@@ -172,3 +172,23 @@ export async function getRecentReports() {
 
   return data;
 }
+
+export async function getEmergencyAndNonEmergencyReports() {
+  cacheTag('emergency-and-non-emergency-reports');
+  cacheLife('days');
+
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
+
+  const data = await db
+    .select({
+      date: symptomReports.createdAt,
+      igd: sql<number>`COUNT(*) FILTER (WHERE ${symptomReports.isEmergency} = true)`,
+      nonIgd: sql<number>`COUNT(*) FILTER (WHERE ${symptomReports.isEmergency} = false OR ${symptomReports.isEmergency} IS NULL)`,
+    })
+    .from(symptomReports)
+    .where(gte(symptomReports.createdAt, thirtyDaysAgo))
+    .groupBy(symptomReports.createdAt)
+    .orderBy(desc(symptomReports.createdAt));
+
+  return data;
+}
