@@ -23,6 +23,7 @@ import {
   IconTrash,
 } from '@tabler/icons-react';
 import { ColumnDef } from '@tanstack/react-table';
+import Link from 'next/link';
 
 export const columns: ColumnDef<Alert>[] = [
   {
@@ -40,8 +41,8 @@ export const columns: ColumnDef<Alert>[] = [
     ),
   },
   {
-    accessorKey: 'district',
-    header: 'Lokasi',
+    accessorKey: 'city',
+    header: 'Kota',
   },
   {
     accessorKey: 'status',
@@ -108,9 +109,11 @@ export const columns: ColumnDef<Alert>[] = [
               Salin ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
-              <IconEdit />
-              Detail
+            <DropdownMenuItem className="cursor-pointer" asChild>
+              <Link href={`/dashboard/peringatan/${alert.id}`}>
+                <IconEdit />
+                Detail
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <IconTrash />

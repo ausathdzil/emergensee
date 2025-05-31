@@ -19,7 +19,9 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { useState } from 'react';
+import { Alert } from '@/db/schema';
+import { IconChevronDown } from '@tabler/icons-react';
+import { useMemo, useState } from 'react';
 import { DataTablePagination } from './data-table-pagination';
 
 interface DataTableProps<TData, TValue> {
@@ -32,6 +34,7 @@ export function DataTable<TData, TValue>({
   data,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState('');
 
   const table = useReactTable({
     data,
@@ -40,8 +43,16 @@ export function DataTable<TData, TValue>({
     getPaginationRowModel: getPaginationRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
     state: {
       columnFilters,
+      globalFilter,
+    },
+    globalFilterFn: (row, columnId, filterValue) => {
+      const original = row.original as Record<string, unknown>;
+      return Object.values(original).some((value) =>
+        String(value).toLowerCase().includes(String(filterValue).toLowerCase())
+      );
     },
     initialState: {
       pagination: {
@@ -50,17 +61,59 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const uniqueCities = useMemo(() => {
+    const cities = (data as Alert[]).map((item) => item.city).filter(Boolean);
+    return Array.from(new Set(cities));
+  }, [data]);
+
   return (
     <div className="space-y-4">
-      <div className="flex items-center">
+      <div className="flex items-center gap-2">
         <Input
           placeholder="Cari peringatan..."
-          value={(table.getColumn('type')?.getFilterValue() as string) ?? ''}
-          onChange={(event) =>
-            table.getColumn('type')?.setFilterValue(event.target.value)
-          }
+          value={globalFilter}
+          onChange={(event) => setGlobalFilter(event.target.value)}
           className="max-w-sm"
         />
+        <div className="relative">
+          <select
+            className="w-56 rounded-lg border px-3 py-2 appearance-none truncate bg-background text-sm"
+            value={(table.getColumn('city')?.getFilterValue() as string) ?? ''}
+            onChange={(e) =>
+              table
+                .getColumn('city')
+                ?.setFilterValue(e.target.value || undefined)
+            }
+          >
+            <option value="">Kota</option>
+            {uniqueCities.map((city) => (
+              <option key={city} value={city}>
+                {city}
+              </option>
+            ))}
+          </select>
+          <IconChevronDown className="absolute size-4 right-3 top-1/2 -translate-y-1/2" />
+        </div>
+        <div className="relative">
+          <select
+            className="w-56 rounded-lg border px-3 py-2 appearance-none truncate bg-background text-sm"
+            value={
+              (table.getColumn('status')?.getFilterValue() as string) ?? ''
+            }
+            onChange={(e) =>
+              table
+                .getColumn('status')
+                ?.setFilterValue(e.target.value || undefined)
+            }
+          >
+            <option value="">Status</option>
+            <option value="Tertangani">Tertangani</option>
+            <option value="Dalam penanganan">Dalam penanganan</option>
+            <option value="Terdeteksi">Terdeteksi</option>
+            <option value="Tidak valid">Tidak valid</option>
+          </select>
+          <IconChevronDown className="absolute size-4 right-3 top-1/2 -translate-y-1/2" />
+        </div>
       </div>
       <div className="rounded-lg border overflow-hidden">
         <Table>
