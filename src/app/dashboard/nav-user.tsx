@@ -1,12 +1,5 @@
 'use client';
 
-import {
-  HandshakeIcon,
-  LockIcon,
-  MoreVerticalIcon,
-  ShieldIcon,
-} from 'lucide-react';
-
 import { SignOutButton } from '@/components/sign-out-button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import {
@@ -24,6 +17,12 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar';
+import {
+  IconDots,
+  IconHeartHandshake,
+  IconLock,
+  IconShield,
+} from '@tabler/icons-react';
 import { User } from 'better-auth';
 
 export function NavUser({ user }: { user: User }) {
@@ -49,7 +48,7 @@ export function NavUser({ user }: { user: User }) {
                   {user.email}
                 </span>
               </div>
-              <MoreVerticalIcon className="ml-auto size-4" />
+              <IconDots className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
@@ -76,15 +75,15 @@ export function NavUser({ user }: { user: User }) {
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem>
-                <ShieldIcon />
+                <IconShield />
                 Keamanan
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <LockIcon />
+                <IconLock />
                 Privasi
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <HandshakeIcon />
+                <IconHeartHandshake />
                 Ketentuan
               </DropdownMenuItem>
             </DropdownMenuGroup>

@@ -7,20 +7,27 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import { HelpCircleIcon, SettingsIcon } from 'lucide-react';
+import {
+  IconHelpCircle,
+  IconHelpCircleFilled,
+  IconSettings,
+  IconSettingsFilled,
+} from '@tabler/icons-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 const items = [
   {
     title: 'Pengaturan',
-    icon: SettingsIcon,
     href: '/dashboard/pengaturan',
+    icon: IconSettings,
+    iconFilled: IconSettingsFilled,
   },
   {
     title: 'Bantuan',
-    icon: HelpCircleIcon,
     href: '#',
+    icon: IconHelpCircle,
+    iconFilled: IconHelpCircleFilled,
   },
 ];
 
@@ -35,7 +42,7 @@ export function NavSecondary() {
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton isActive={pathname === item.href} asChild>
                 <Link href={item.href}>
-                  <item.icon />
+                  {pathname === item.href ? <item.iconFilled /> : <item.icon />}
                   {item.title}
                 </Link>
               </SidebarMenuButton>

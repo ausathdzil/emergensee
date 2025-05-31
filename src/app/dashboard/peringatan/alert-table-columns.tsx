@@ -11,16 +11,17 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Alert } from '@/db/schema';
-import { ColumnDef } from '@tanstack/react-table';
+import { cn } from '@/lib/utils';
 import {
-  CircleAlertIcon,
-  CircleCheckIcon,
-  CopyIcon,
-  EditIcon,
-  LoaderIcon,
-  MoreHorizontal,
-  Trash2Icon,
-} from 'lucide-react';
+  IconAlertCircle,
+  IconCircleCheck,
+  IconCopy,
+  IconDots,
+  IconEdit,
+  IconLoader,
+  IconTrash,
+} from '@tabler/icons-react';
+import { ColumnDef } from '@tanstack/react-table';
 
 export const columns: ColumnDef<Alert>[] = [
   {
@@ -47,13 +48,19 @@ export const columns: ColumnDef<Alert>[] = [
     accessorKey: 'status',
     header: 'Status',
     cell: ({ row }) => (
-      <Badge variant="outline" className="text-muted-foreground px-1.5">
+      <Badge
+        className={cn(
+          'px-1.5 bg-destructive',
+          row.original.status === 'Selesai' && 'bg-primary',
+          row.original.status === 'Aktif' && 'bg-warning'
+        )}
+      >
         {row.original.status === 'Selesai' ? (
-          <CircleCheckIcon className="fill-primary stroke-background" />
+          <IconCircleCheck />
         ) : row.original.status === 'Aktif' ? (
-          <LoaderIcon />
+          <IconLoader />
         ) : (
-          <CircleAlertIcon className="fill-destructive stroke-background" />
+          <IconAlertCircle />
         )}
         {row.original.status}
       </Badge>
@@ -81,9 +88,9 @@ export const columns: ColumnDef<Alert>[] = [
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
+            <Button variant="ghost" className="size-8 p-0">
               <span className="sr-only">Open menu</span>
-              <MoreHorizontal className="h-4 w-4" />
+              <IconDots />
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
@@ -91,16 +98,16 @@ export const columns: ColumnDef<Alert>[] = [
             <DropdownMenuItem
               onClick={() => navigator.clipboard.writeText(alert.id)}
             >
-              <CopyIcon />
+              <IconCopy />
               Salin ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem>
-              <EditIcon />
+              <IconEdit />
               Ubah Detail
             </DropdownMenuItem>
             <DropdownMenuItem>
-              <Trash2Icon />
+              <IconTrash />
               Hapus
             </DropdownMenuItem>
           </DropdownMenuContent>

@@ -1,8 +1,8 @@
 'use client';
 
 import { authClient } from '@/lib/auth-client';
+import { IconLoader, IconLogout } from '@tabler/icons-react';
 import { VariantProps } from 'class-variance-authority';
-import { Loader, LogOutIcon } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button, buttonVariants } from './ui/button';
@@ -34,7 +34,11 @@ export function SignOutButton({
         setIsLoading(false);
       }}
     >
-      {isLoading ? <Loader className="animate-spin size-4" /> : <LogOutIcon />}
+      {isLoading ? (
+        <IconLoader className="animate-spin size-4" />
+      ) : (
+        <IconLogout />
+      )}
       Keluar
     </Button>
   );

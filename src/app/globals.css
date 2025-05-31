@@ -54,6 +54,9 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
 }
 
 :root {
@@ -65,7 +68,7 @@
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.141 0.005 285.823);
   --primary: var(--color-lochinvar-500);
-  --primary-foreground: oklch(0.982 0.018 155.826);
+  --primary-foreground: var(--color-lochinvar-50);
   --secondary: oklch(0.967 0.001 286.375);
   --secondary-foreground: oklch(0.21 0.006 285.885);
   --muted: oklch(0.967 0.001 286.375);
@@ -84,11 +87,14 @@
   --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.141 0.005 285.823);
   --sidebar-primary: var(--color-lochinvar-500);
-  --sidebar-primary-foreground: oklch(0.982 0.018 155.826);
-  --sidebar-accent: oklch(0.985 0 0);
-  --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
+  --sidebar-primary-foreground: var(--color-lochinvar-50);
+  --sidebar-accent: var(--color-lochinvar-50);
+  --sidebar-accent-foreground: var(--color-lochinvar-500);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: var(--color-lochinvar-500);
+
+  --warning: oklch(0.84 0.16 84);
+  --warning-foreground: oklch(0.28 0.07 46);
 }
 
 @layer base {

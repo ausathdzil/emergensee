@@ -22,14 +22,11 @@ import {
   getTotalReports,
 } from '@/db/data';
 import {
-  ChevronRightIcon,
-  CircleAlertIcon,
-  CircleCheckIcon,
-  Loader,
-  LoaderIcon,
-  TrendingDown,
-  TrendingUp,
-} from 'lucide-react';
+  IconChevronRight,
+  IconLoader,
+  IconTrendingDown,
+  IconTrendingUp,
+} from '@tabler/icons-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { alertsDummy } from './peringatan/page';
@@ -61,7 +58,7 @@ export default function Dashboard() {
       </header>
       <main className="@container/main flex-1 flex flex-col gap-6 p-8">
         <div className="flex flex-col gap-4">
-          <Suspense fallback={<Loader className="animate-spin" />}>
+          <Suspense fallback={<IconLoader className="animate-spin" />}>
             <div className="*:data-[slot=card]:from-primary/5 *:data-[slot=card]:to-card dark:*:data-[slot=card]:bg-card grid grid-cols-1 gap-4 *:data-[slot=card]:bg-gradient-to-t *:data-[slot=card]:shadow-xs @xl/main:grid-cols-2 @2xl/main:grid-cols-3">
               <TotalReports totalReports={totalReportsDummy} />
               <EmergencyReports emergencyReports={emergencyReportsDummy} />
@@ -101,16 +98,16 @@ function TotalReports({
     <Card className="@container/card">
       <CardHeader>
         <CardDescription>Total Laporan Harian</CardDescription>
-        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-primary">
           {totalReports.today}
         </CardTitle>
         {percent !== 0 && (
           <CardAction>
             <Badge variant="outline">
               {isDown ? (
-                <TrendingDown className="text-primary" />
+                <IconTrendingDown className="text-primary" />
               ) : (
-                <TrendingUp className="text-destructive" />
+                <IconTrendingUp className="text-destructive" />
               )}
               {Math.abs(Math.round(percent))}%
             </Badge>
@@ -151,16 +148,16 @@ function EmergencyReports({
     <Card className="@container/card">
       <CardHeader>
         <CardDescription>Total Indikasi IGD</CardDescription>
-        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-destructive">
           {emergencyReports.today}
         </CardTitle>
         {percent !== 0 && (
           <CardAction>
             <Badge variant="outline">
               {isDown ? (
-                <TrendingDown className="text-primary" />
+                <IconTrendingDown className="text-primary" />
               ) : (
-                <TrendingUp className="text-destructive" />
+                <IconTrendingUp className="text-destructive" />
               )}
               {Math.abs(Math.round(percent))}%
             </Badge>
@@ -187,7 +184,7 @@ function ActiveAlerts({
     <Card className="@container/card">
       <CardHeader>
         <CardDescription>Peringatan Aktif</CardDescription>
-        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl">
+        <CardTitle className="text-2xl font-semibold tabular-nums @[250px]/card:text-3xl text-warning">
           {activeAlerts.length}
         </CardTitle>
       </CardHeader>
@@ -234,17 +231,8 @@ function ActiveAlertsTable({
               </TableCell>
               <TableCell>{alert.district}</TableCell>
               <TableCell>
-                <Badge
-                  variant="outline"
-                  className="text-muted-foreground px-1.5"
-                >
-                  {alert.status === 'Selesai' ? (
-                    <CircleCheckIcon className="fill-primary stroke-background" />
-                  ) : alert.status === 'Aktif' ? (
-                    <LoaderIcon />
-                  ) : (
-                    <CircleAlertIcon className="fill-destructive stroke-background" />
-                  )}
+                <Badge className="bg-warning px-1.5">
+                  <IconLoader />
                   {alert.status}
                 </Badge>
               </TableCell>
@@ -260,7 +248,7 @@ function ActiveAlertsTable({
                   className={buttonVariants({ variant: 'ghost', size: 'icon' })}
                   href={`/dashboard/peringatan/${alert.id}`}
                 >
-                  <ChevronRightIcon />
+                  <IconChevronRight />
                 </Link>
               </TableCell>
             </TableRow>

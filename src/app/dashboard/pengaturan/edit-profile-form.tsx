@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { updateUser } from '@/db/actions';
 import { User } from '@/db/schema';
-import { Loader, SaveIcon } from 'lucide-react';
+import { IconDeviceFloppy, IconLoader } from '@tabler/icons-react';
 import { useActionState } from 'react';
 
 export function EditProfileForm({ user }: { user: User }) {
@@ -75,7 +75,11 @@ export function EditProfileForm({ user }: { user: User }) {
         type="submit"
         disabled={isPending}
       >
-        {isPending ? <Loader className=" animate-spin" /> : <SaveIcon />}
+        {isPending ? (
+          <IconLoader className=" animate-spin" />
+        ) : (
+          <IconDeviceFloppy />
+        )}
         Simpan
       </Button>
 

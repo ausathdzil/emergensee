@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { signIn } from '@/lib/auth-client';
-import { Loader } from 'lucide-react';
+import { IconLoader } from '@tabler/icons-react';
 import { useActionState } from 'react';
 
 export default function SignIn() {
@@ -27,7 +27,7 @@ export default function SignIn() {
       )}
 
       <Button className="w-full" type="submit" disabled={isPending}>
-        {isPending ? <Loader className="animate-spin" /> : 'Sign In'}
+        {isPending ? <IconLoader className="animate-spin" /> : 'Sign In'}
       </Button>
     </form>
   );

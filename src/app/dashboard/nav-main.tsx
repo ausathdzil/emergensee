@@ -8,11 +8,15 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import {
-  AreaChartIcon,
-  GaugeIcon,
-  MapPinnedIcon,
-  TriangleAlertIcon
-} from 'lucide-react';
+  IconAlertTriangle,
+  IconAlertTriangleFilled,
+  IconChartAreaLine,
+  IconChartAreaLineFilled,
+  IconDashboard,
+  IconDashboardFilled,
+  IconMapPin,
+  IconMapPinFilled
+} from '@tabler/icons-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
@@ -20,22 +24,26 @@ const items = [
   {
     title: 'Dashboard',
     url: '/dashboard',
-    icon: GaugeIcon,
+    icon: IconDashboard,
+    iconFilled: IconDashboardFilled,
   },
   {
     title: 'Epidemiologi',
     url: '/dashboard/epidemiologi',
-    icon: MapPinnedIcon,
+    icon: IconMapPin,
+    iconFilled: IconMapPinFilled,
   },
   {
     title: 'Peringatan',
     url: '/dashboard/peringatan',
-    icon: TriangleAlertIcon,
+    icon: IconAlertTriangle,
+    iconFilled: IconAlertTriangleFilled,
   },
   {
     title: 'Analisis',
     url: '/dashboard/analisis',
-    icon: AreaChartIcon,
+    icon: IconChartAreaLine,
+    iconFilled: IconChartAreaLineFilled,
   },
 ];
 
@@ -50,7 +58,7 @@ export function NavMain() {
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton isActive={pathname === item.url} asChild>
                 <Link href={item.url}>
-                  <item.icon />
+                  {pathname === item.url ? <item.iconFilled /> : <item.icon />}
                   {item.title}
                 </Link>
               </SidebarMenuButton>

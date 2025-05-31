@@ -1,4 +1,4 @@
-import { Loader } from 'lucide-react';
+import { IconLoader } from '@tabler/icons-react';
 import type { Metadata } from 'next';
 import { Manrope } from 'next/font/google';
 import { Suspense } from 'react';
@@ -33,7 +33,7 @@ export default function RootLayout({
 function Loading() {
   return (
     <div className="flex h-screen w-screen items-center justify-center">
-      <Loader className="animate-spin" />
+      <IconLoader className="animate-spin" />
     </div>
   );
 }
