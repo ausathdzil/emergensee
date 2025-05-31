@@ -4,6 +4,7 @@ import {
   HandshakeIcon,
   LockIcon,
   MoreVerticalIcon,
+  SettingsIcon,
   ShieldIcon,
 } from 'lucide-react';
 
@@ -25,12 +26,26 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 import { User } from 'better-auth';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 export function NavUser({ user }: { user: User }) {
   const { isMobile } = useSidebar();
+  const pathname = usePathname();
 
   return (
     <SidebarMenu>
+      <SidebarMenuItem>
+        <SidebarMenuButton
+          isActive={pathname === '/dashboard/pengaturan'}
+          asChild
+        >
+          <Link href="#">
+            <SettingsIcon />
+            Pengaturan
+          </Link>
+        </SidebarMenuButton>
+      </SidebarMenuItem>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

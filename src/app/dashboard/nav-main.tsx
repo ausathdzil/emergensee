@@ -8,9 +8,9 @@ import {
   SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import {
-  ChartLineIcon,
-  CircleGaugeIcon,
+  AreaChartIcon,
   CogIcon,
+  GaugeIcon,
   MapPinnedIcon,
   TriangleAlertIcon
 } from 'lucide-react';
@@ -21,7 +21,7 @@ const items = [
   {
     title: 'Dashboard',
     url: '/dashboard',
-    icon: CircleGaugeIcon,
+    icon: GaugeIcon,
   },
   {
     title: 'Epidemiologi',
@@ -36,12 +36,7 @@ const items = [
   {
     title: 'Analisis',
     url: '/dashboard/analisis',
-    icon: ChartLineIcon,
-  },
-  {
-    title: 'Pengaturan',
-    url: '#',
-    icon: CogIcon,
+    icon: AreaChartIcon,
   },
 ];
 

@@ -26,7 +26,7 @@ export async function AppSidebar() {
       <SidebarHeader>
         <div className="w-full flex items-center justify-center gap-1.5">
           <Logo />
-          <span className="text-lg text-primary font-semibold">EmergenSee</span>
+          <span className="text-lg text-primary font-bold">EmergenSee</span>
         </div>
       </SidebarHeader>
       <SidebarContent>

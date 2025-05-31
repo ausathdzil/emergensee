@@ -81,11 +81,11 @@
   --chart-3: var(--color-lochinvar-300);
   --chart-4: var(--color-lochinvar-400);
   --chart-5: var(--color-lochinvar-500);
-  --sidebar: oklch(0.985 0 0);
+  --sidebar: oklch(1 0 0);
   --sidebar-foreground: oklch(0.141 0.005 285.823);
   --sidebar-primary: var(--color-lochinvar-500);
   --sidebar-primary-foreground: oklch(0.982 0.018 155.826);
-  --sidebar-accent: oklch(0.967 0.001 286.375);
+  --sidebar-accent: oklch(0.985 0 0);
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: var(--color-lochinvar-500);
