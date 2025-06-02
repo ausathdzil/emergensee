@@ -71,18 +71,18 @@ function TotalReports({
 }: {
   totalReports: Awaited<ReturnType<typeof getTotalReports>>;
 }) {
-  const today = Number(totalReports.today) || 0;
-  const sevenDaysAgo = Number(totalReports.sevenDaysAgo) || 0;
-  const diff = today - sevenDaysAgo;
+  const lastSevenDays = Number(totalReports.lastSevenDays) || 0;
+  const previousSevenDays = Number(totalReports.previousSevenDays) || 0;
+  const diff = lastSevenDays - previousSevenDays;
 
   let percent: number;
 
-  if (sevenDaysAgo === 0 && today === 0) {
+  if (previousSevenDays === 0 && lastSevenDays === 0) {
     percent = 0;
-  } else if (sevenDaysAgo === 0) {
+  } else if (previousSevenDays === 0) {
     percent = 100;
   } else {
-    percent = (diff / sevenDaysAgo) * 100;
+    percent = (diff / previousSevenDays) * 100;
   }
 
   const isDown = percent < 0;
@@ -97,7 +97,7 @@ function TotalReports({
           <div className="rounded-full bg-primary/10 p-1">
             <IconClipboardPlus className="stroke-primary size-5" />
           </div>
-          {totalReports.today}
+          {totalReports.lastSevenDays}
         </CardTitle>
         {percent !== 0 && (
           <CardAction>
@@ -114,7 +114,7 @@ function TotalReports({
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1.5 text-sm">
         <div className="text-muted-foreground">
-          Laporan harian dalam 7 hari terakhir
+          Laporan dalam 7 hari terakhir
         </div>
       </CardFooter>
     </Card>
@@ -126,18 +126,18 @@ function EmergencyReports({
 }: {
   emergencyReports: Awaited<ReturnType<typeof getEmergencyReports>>;
 }) {
-  const today = Number(emergencyReports.today) || 0;
-  const sevenDaysAgo = Number(emergencyReports.sevenDaysAgo) || 0;
-  const diff = today - sevenDaysAgo;
+  const lastSevenDays = Number(emergencyReports.lastSevenDays) || 0;
+  const previousSevenDays = Number(emergencyReports.previousSevenDays) || 0;
+  const diff = lastSevenDays - previousSevenDays;
 
   let percent: number;
 
-  if (sevenDaysAgo === 0 && today === 0) {
+  if (previousSevenDays === 0 && lastSevenDays === 0) {
     percent = 0;
-  } else if (sevenDaysAgo === 0) {
+  } else if (previousSevenDays === 0) {
     percent = 100;
   } else {
-    percent = (diff / sevenDaysAgo) * 100;
+    percent = (diff / previousSevenDays) * 100;
   }
 
   const isDown = percent < 0;
@@ -152,7 +152,7 @@ function EmergencyReports({
           <div className="rounded-full bg-destructive/10 p-1">
             <IconBuildingHospital className="stroke-destructive size-5" />
           </div>
-          {emergencyReports.today}
+          {emergencyReports.lastSevenDays}
         </CardTitle>
         {percent !== 0 && (
           <CardAction>
@@ -169,7 +169,7 @@ function EmergencyReports({
       </CardHeader>
       <CardFooter className="flex-col items-start gap-1.5 text-sm">
         <div className="text-muted-foreground">
-          Kasus dengan indikasi IGD 7 hari terakhir
+          Kasus dengan indikasi IGD dalam 7 hari terakhir
         </div>
       </CardFooter>
     </Card>

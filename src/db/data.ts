@@ -13,21 +13,21 @@ export async function getTotalReports() {
   cacheLife('hours');
 
   const now = Date.now();
-  const today = new Date(now - 24 * 60 * 60 * 1000);
   const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+  const fourteenDaysAgo = new Date(now - 14 * 24 * 60 * 60 * 1000);
 
   const data = await db
     .select({
-      today: sql<number>`
+      lastSevenDays: sql<number>`
         COALESCE(SUM(CASE 
-          WHEN ${symptomReports.createdAt} >= ${today} AND ${
+          WHEN ${symptomReports.createdAt} >= ${sevenDaysAgo} AND ${
         symptomReports.createdAt
       } < ${new Date()}
           THEN 1 ELSE 0 END
         ), 0)`,
-      sevenDaysAgo: sql<number>`
+      previousSevenDays: sql<number>`
         COALESCE(SUM(CASE 
-          WHEN ${symptomReports.createdAt} >= ${sevenDaysAgo} AND ${symptomReports.createdAt} < ${today}
+          WHEN ${symptomReports.createdAt} >= ${fourteenDaysAgo} AND ${symptomReports.createdAt} < ${sevenDaysAgo}
           THEN 1 ELSE 0 END
         ), 0)`,
     })
@@ -41,21 +41,21 @@ export async function getEmergencyReports() {
   cacheLife('hours');
 
   const now = Date.now();
-  const today = new Date(now - 24 * 60 * 60 * 1000);
   const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
+  const fourteenDaysAgo = new Date(now - 14 * 24 * 60 * 60 * 1000);
 
   const data = await db
     .select({
-      today: sql<number>`
+      lastSevenDays: sql<number>`
         COALESCE(SUM(CASE 
           WHEN ${symptomReports.isEmergency} = true AND ${
         symptomReports.createdAt
-      } >= ${today} AND ${symptomReports.createdAt} < ${new Date()}
+      } >= ${sevenDaysAgo} AND ${symptomReports.createdAt} < ${new Date()}
           THEN 1 ELSE 0 END
         ), 0)`,
-      sevenDaysAgo: sql<number>`
+      previousSevenDays: sql<number>`
         COALESCE(SUM(CASE 
-          WHEN ${symptomReports.isEmergency} = true AND ${symptomReports.createdAt} >= ${sevenDaysAgo} AND ${symptomReports.createdAt} < ${today}
+          WHEN ${symptomReports.isEmergency} = true AND ${symptomReports.createdAt} >= ${fourteenDaysAgo} AND ${symptomReports.createdAt} < ${sevenDaysAgo}
           THEN 1 ELSE 0 END
         ), 0)`,
     })
