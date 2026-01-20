@@ -22,6 +22,7 @@ import {
   IconCircleX,
   IconLoader,
 } from '@tabler/icons-react';
+import { unstable_noStore as noStore } from 'next/cache';
 
 interface AlertPageProps {
   params: Promise<{
@@ -66,14 +67,9 @@ function getStatusBadge(status: string) {
 }
 
 export default async function Alert({ params }: AlertPageProps) {
+  noStore();
   const { id } = await params;
   const alert = await getAlertById(id);
-
-  let reviewerName = '-';
-  if (alert.reviewedBy) {
-    const reviewer = await getUserById(alert.reviewedBy);
-    reviewerName = reviewer.name;
-  }
 
   if (!alert) {
     return (
@@ -81,6 +77,12 @@ export default async function Alert({ params }: AlertPageProps) {
         Peringatan tidak ditemukan.
       </div>
     );
+  }
+
+  let reviewerName = '-';
+  if (alert.reviewedBy) {
+    const reviewer = await getUserById(alert.reviewedBy);
+    reviewerName = reviewer?.name ?? '-';
   }
 
   return (

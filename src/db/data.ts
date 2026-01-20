@@ -8,9 +8,17 @@ import {
 import { db } from '.';
 import { alerts, symptomReports, user } from './schema';
 
+function isDbConfigured() {
+  return Boolean(process.env.DATABASE_URL);
+}
+
 export async function getTotalReports() {
   cacheTag('total-reports');
   cacheLife('hours');
+
+  if (!isDbConfigured()) {
+    return { lastSevenDays: 0, previousSevenDays: 0 };
+  }
 
   const now = Date.now();
   const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
@@ -40,6 +48,10 @@ export async function getEmergencyReports() {
   cacheTag('emergency-reports');
   cacheLife('hours');
 
+  if (!isDbConfigured()) {
+    return { lastSevenDays: 0, previousSevenDays: 0 };
+  }
+
   const now = Date.now();
   const sevenDaysAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
   const fourteenDaysAgo = new Date(now - 14 * 24 * 60 * 60 * 1000);
@@ -68,6 +80,10 @@ export async function getDetectedAlerts() {
   cacheTag('detected-alerts');
   cacheLife('hours');
 
+  if (!isDbConfigured()) {
+    return [];
+  }
+
   const data = await db
     .select()
     .from(alerts)
@@ -79,6 +95,10 @@ export async function getDetectedAlerts() {
 export async function getReportsBySymptoms() {
   cacheTag('reports-by-symptoms');
   cacheLife('hours');
+
+  if (!isDbConfigured()) {
+    return [];
+  }
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
@@ -112,6 +132,10 @@ export async function getSymptomsAndLocations(): Promise<
 > {
   cacheTag('symptoms-and-locations');
   cacheLife('hours');
+
+  if (!isDbConfigured()) {
+    return [];
+  }
 
   const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
@@ -155,6 +179,10 @@ export async function getAllAlerts() {
   cacheTag('all-alerts');
   cacheLife('hours');
 
+  if (!isDbConfigured()) {
+    return [];
+  }
+
   const data = await db.select().from(alerts).orderBy(desc(alerts.createdAt));
 
   return data;
@@ -163,6 +191,10 @@ export async function getAllAlerts() {
 export async function getRecentReports() {
   cacheTag('recent-reports');
   cacheLife('hours');
+
+  if (!isDbConfigured()) {
+    return [];
+  }
 
   const data = await db
     .select()
@@ -176,6 +208,10 @@ export async function getRecentReports() {
 export async function getEmergencyAndNonEmergencyReports() {
   cacheTag('emergency-and-non-emergency-reports');
   cacheLife('hours');
+
+  if (!isDbConfigured()) {
+    return [];
+  }
 
   const data = await db
     .select({
@@ -201,6 +237,10 @@ export async function getRecentSymptomReports() {
   cacheTag('recent-symptom-reports');
   cacheLife('hours');
 
+  if (!isDbConfigured()) {
+    return [];
+  }
+
   const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
   const data = await db
@@ -222,6 +262,10 @@ export async function getAlertById(id: string) {
   cacheTag('alert-by-id');
   cacheLife('hours');
 
+  if (!isDbConfigured()) {
+    return undefined;
+  }
+
   const data = await db.select().from(alerts).where(eq(alerts.id, id));
   return data[0];
 }
@@ -229,6 +273,10 @@ export async function getAlertById(id: string) {
 export async function getUserById(id: string) {
   cacheTag('user-by-id');
   cacheLife('hours');
+
+  if (!isDbConfigured()) {
+    return undefined;
+  }
 
   const data = await db.select().from(user).where(eq(user.id, id));
   return data[0];

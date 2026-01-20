@@ -1,7 +1,9 @@
 import { getEmergencyAndNonEmergencyReports } from '@/db/data';
+import { unstable_noStore as noStore } from 'next/cache';
 import { TrendAnalysisChart } from './trend-analysis-chart';
 
 export default async function Analisis() {
+  noStore();
   const data = await getEmergencyAndNonEmergencyReports();
 
   return (

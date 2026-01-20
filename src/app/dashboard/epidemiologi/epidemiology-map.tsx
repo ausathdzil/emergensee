@@ -67,11 +67,9 @@ export function EpidemiologyMap({
   );
   const [selectedCity, setSelectedCity] = useState(CITIES[0].name);
 
-  useEffect(() => {
-    if (!uniqueSymptoms.includes(selectedSymptom)) {
-      setSelectedSymptom(uniqueSymptoms[0] || '');
-    }
-  }, [uniqueSymptoms, selectedSymptom]);
+  const resolvedSelectedSymptom = uniqueSymptoms.includes(selectedSymptom)
+    ? selectedSymptom
+    : (uniqueSymptoms[0] ?? '');
 
   const handleButtonClick = useCallback(() => {
     if (mapRef.current) {
@@ -127,7 +125,7 @@ export function EpidemiologyMap({
     // Only generate features for valid locations
     const features: Feature<Point, GeoJsonProperties>[] =
       symptomsAndLocations
-        .filter((item) => item.symptom === selectedSymptom)
+        .filter((item) => item.symptom === resolvedSelectedSymptom)
         .flatMap((item) =>
           Array.isArray(item.locations)
             ? item.locations
@@ -226,7 +224,7 @@ export function EpidemiologyMap({
     } else if ('setData' in source) {
       (source as mapboxgl.GeoJSONSource).setData(geojson);
     }
-  }, [selectedSymptom, mapLoaded, symptomsAndLocations]);
+  }, [resolvedSelectedSymptom, mapLoaded, symptomsAndLocations]);
 
   const handleSelectChange = useCallback(
     (e: React.ChangeEvent<HTMLSelectElement>) =>
@@ -260,7 +258,7 @@ export function EpidemiologyMap({
             <div className="relative">
               <select
                 id={selectId}
-                value={selectedSymptom}
+                value={resolvedSelectedSymptom}
                 onChange={handleSelectChange}
                 className="w-56 rounded-lg border px-3 py-2 appearance-none text-sm"
               >

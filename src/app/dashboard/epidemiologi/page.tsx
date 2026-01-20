@@ -1,7 +1,9 @@
 import { getSymptomsAndLocations } from '@/db/data';
+import { unstable_noStore as noStore } from 'next/cache';
 import { EpidemiologyMap } from './epidemiology-map';
 
 export default async function Epidemiology() {
+  noStore();
   const symptomsAndLocations = await getSymptomsAndLocations();
 
   return (
