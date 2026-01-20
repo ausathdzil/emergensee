@@ -8,8 +8,9 @@ import {
 } from '@/components/ui/card';
 import { getAlertById } from '@/db/data';
 import { auth } from '@/lib/auth';
+import { unstable_noStore as noStore } from 'next/cache';
 import { headers } from 'next/headers';
-import { redirect } from 'next/navigation';
+import { notFound, redirect } from 'next/navigation';
 import { UpdateAlertForm } from './update-alert-form';
 
 interface EditAlertProps {
@@ -19,11 +20,16 @@ interface EditAlertProps {
 }
 
 export default async function EditAlert({ params }: EditAlertProps) {
+  noStore();
   const { id } = await params;
   const alert = await getAlertById(id);
   const session = await auth.api.getSession({
     headers: await headers(),
   });
+
+  if (!alert) {
+    notFound();
+  }
 
   if (!session) {
     redirect('/sign-in');

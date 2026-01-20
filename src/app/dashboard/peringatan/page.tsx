@@ -1,8 +1,10 @@
 import { getAllAlerts } from '@/db/data';
+import { unstable_noStore as noStore } from 'next/cache';
 import { columns } from './alert-table-columns';
 import { DataTable } from './data-table';
 
 export default async function Alerts() {
+  noStore();
   const alerts = await getAllAlerts();
 
   return (

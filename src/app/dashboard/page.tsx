@@ -31,11 +31,13 @@ import {
   IconTrendingDown,
   IconTrendingUp,
 } from '@tabler/icons-react';
+import { unstable_noStore as noStore } from 'next/cache';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { SymptomsTrendChart } from './symptoms-trend-chart';
 
 export default async function Dashboard() {
+  noStore();
   const [totalReports, emergencyReports, symptomsTrend, detectedAlerts] =
     await Promise.all([
       getTotalReports(),

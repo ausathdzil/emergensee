@@ -3,10 +3,12 @@ import { getRecentSymptomReports } from '@/db/data';
 import { alerts } from '@/db/schema';
 import { google } from '@ai-sdk/google';
 import { generateObject } from 'ai';
+import { unstable_noStore as noStore } from 'next/cache';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 export async function POST() {
+  noStore();
   const reports = await getRecentSymptomReports();
 
   const prompt = `
